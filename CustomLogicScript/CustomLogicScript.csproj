@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;ConsoleClient</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;ConsoleClient</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="UnityEngine">
+        <HintPath>lib\UnityEngine.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
