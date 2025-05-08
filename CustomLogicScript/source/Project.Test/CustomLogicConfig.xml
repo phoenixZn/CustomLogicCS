@@ -1,0 +1,107 @@
+<ConfigSystem>
+	<CustomLogicConfig>
+	
+		<!-- 示例  -->
+    <ConfigItem type="CustomLogic">
+      <ID>1</ID>
+      <Tips>测试</Tips>
+      <Node type="RunDSLBhv">
+           float:A = 3
+      </Node>
+      <Node type="RunDSLBhv">
+           float:B = 2
+           float:C = A - B
+      </Node>
+      <Node type="CndBhvNode">
+        <Condition type="ExpressionCnd" Code="C #LE 0"/>
+        <Bhv type="FTDelayBhv" TimeLen="1.999"/>
+      </Node>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+      <ID>10000</ID>
+      <Tips>测试0</Tips>
+      <Node type="CndBhvNode">
+        <Condition type="TimeOutCnd" time="30"/>
+        <Bhv type="FTDelayBhv" TimeLen="3.25"/>
+      </Node>
+    </ConfigItem>
+    
+    <ConfigItem type="CustomLogic">
+			<ID>10001</ID>
+			<Tips>测试1</Tips>
+      <Node type="CndBhvNode">
+        <Condition type="TimeOutCnd" time="30"/>
+        <Bhv type="FTDelayBhv" TimeLen="3.25"/>
+			</Node>
+      <Node type="FTDelayBhv" TimeLen="5.25"/>
+      <Node type="FTSequenceBhv">
+        <Node type="FTDelayBhv" TimeLen="10"/>
+        <Node type="FTLogBhv" LogStr="haha -1"/>
+        <Node type="FTDelayBhv" TimeLen="10"/>
+        <Node type="FTLogBhv" LogStr="haha -2"/>
+      </Node>
+      <Node type="FTRepeatBhv" Times="3">
+        <Node type="FTSequenceBhv">
+          <Node type="FTLogBhv" LogStr="Repeat +1"/>
+          <Node type="FTDelayBhv" TimeLen="2"/>
+        </Node>
+      </Node>
+		</ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+      <ID>10002</ID>
+      <Tips>测试2</Tips>
+      <Node type="FTSequenceBhv">
+        <Node type="FTDelayBhv" TimeLen="3"/>
+        <Node type="FTLogBhv" LogStr="10002 -1"/>
+        <Node type="FTDelayBhv" TimeLen="3"/>
+        <Node type="FTLogBhv" LogStr="10002 -2"/>
+      </Node>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+      <ID>10003</ID>
+      <Tips>测试3</Tips>
+      <Node type="LogicTemplete" LogicID="10001"/>
+      <Node type="ProceedInParallel">
+        <Node type="FTLogBhv" LogStr="10003 1"/>
+        <Node type="FTRepeatBhv" Times="4">
+          <Node type="FTSequenceBhv">
+            <Node type="FTLogBhv" LogStr="10003 2"/>
+            <Node type="FTDelayBhv" TimeLen="2"/>
+          </Node>
+        </Node> 
+      </Node>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+      <ID>90001</ID>
+      <Node type="LogicTemplete" LogicID="90003"/>
+      <Node type="FTLogBhv" LogStr="模板引用1"/>
+    </ConfigItem>
+    <ConfigItem type="CustomLogic">
+      <ID>90002</ID>
+      <Node type="LogicTemplete" LogicID="90001"/>
+      <Node type="FTLogBhv" LogStr="模板引用2"/>
+    </ConfigItem>
+    <ConfigItem type="CustomLogic">
+      <ID>90003</ID>
+      <Node type="LogicTemplete" LogicID="90002"/>
+      <Node type="FTLogBhv" LogStr="模板引用3"/>
+    </ConfigItem>
+    
+    <ConfigItem type="CustomLogic">
+      <ID>10004</ID>
+      <Tips>测试4</Tips>
+      <Node type="LogicReference" LogicID="10002"/>
+      <Node type="FTRepeatBhv" Times="3">
+        <Node type="FTSequenceBhv">
+          <Node type="FTLogBhv" LogStr="10004 Log"/>
+          <Node type="FTDelayBhv" TimeLen="1"/>
+        </Node>
+      </Node>
+    </ConfigItem>
+		
+	</CustomLogicConfig>
+</ConfigSystem>
