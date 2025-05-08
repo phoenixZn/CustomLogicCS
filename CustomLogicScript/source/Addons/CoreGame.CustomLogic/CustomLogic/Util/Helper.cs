@@ -186,14 +186,6 @@ namespace CoreGame.Custom
         }
 
     }
-
-
-
-
-    public static class Constant
-    {
-        //public const string CustomLogicXmlCfgPath = "Config/ClientConfig/CustomLogicConfig";
-    }
-
+    
 }
 

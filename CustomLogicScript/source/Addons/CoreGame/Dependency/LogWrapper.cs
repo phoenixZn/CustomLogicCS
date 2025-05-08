@@ -215,7 +215,7 @@ public class LogWrapper
             return;
 
         //-----------------------
-#if CONSOLE_CLIENT
+#if ConsoleClient
         string line = string.Format("{1} {2} {3} - {0}", info, DateTime.Now.ToString(), sm_log_prefix, levelname);
         Console.WriteLine( line );
 #else
