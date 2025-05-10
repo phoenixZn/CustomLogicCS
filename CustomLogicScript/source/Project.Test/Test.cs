@@ -57,11 +57,11 @@ namespace CoreGame.Custom
                 ? Path.GetDirectoryName(entryAssemblyPath) 
                 : "无法获取入口程序集路径";
 
-            // 方法2：通过进程路径获取（.NET Core 2.1+）
-            var processPath = Environment.ProcessPath;
-            var directoryFromProcess = processPath != null 
-                ? Path.GetDirectoryName(processPath) 
-                : "无法获取进程路径";
+            // // 方法2：通过进程路径获取（.NET Core 2.1+）
+            // var processPath = Environment.ProcessPath;
+            // var directoryFromProcess = processPath != null 
+            //     ? Path.GetDirectoryName(processPath) 
+            //     : "无法获取进程路径";
 
             // 方法3：通过应用程序域基目录（可能包含子目录）
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -69,7 +69,7 @@ namespace CoreGame.Custom
             // 输出结果
             Console.WriteLine("=== 可执行文件所在目录 ===");
             Console.WriteLine($"方法1（入口程序集）: {directoryFromAssembly}");
-            Console.WriteLine($"方法2（进程路径）: {directoryFromProcess}");
+            //Console.WriteLine($"方法2（进程路径）: {directoryFromProcess}");
             Console.WriteLine($"方法3（应用程序域基目录）: {baseDirectory}");
             
             string resPath = $"{directoryFromAssembly}/CustomLogicConfig.xml";
