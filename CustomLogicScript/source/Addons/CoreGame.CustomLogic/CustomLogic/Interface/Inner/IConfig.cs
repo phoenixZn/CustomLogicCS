@@ -16,7 +16,7 @@ namespace CoreGame.Custom
 
     public interface IParseWithConfigMng
     {
-        void SetConfigMng(CustomLogicConfigMng mng);
+        void SetConfigMng(LogicConfigContainer container);
     }
 
     //含有子节点配置

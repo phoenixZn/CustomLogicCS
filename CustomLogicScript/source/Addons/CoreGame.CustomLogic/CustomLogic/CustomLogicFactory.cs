@@ -6,19 +6,36 @@
 
 	change list:
 *********************************************************************/
+using System.Collections.Generic;
+
 
 namespace CoreGame.Custom
 {
     public class CustomLogicFactory
     {
-        protected CustomLogicConfigMng mConfigMng = null;
+        static CustomLogicFactory sInstance = null;
+        public static CustomLogicFactory Instance()
+        {
+            if (sInstance == null)
+            {
+                sInstance = new CustomLogicFactory();
+            }
+            return sInstance;
+        }
+        
+        private CustomLogicFactory()
+        {
+        }
+        
+        protected Dictionary<string, LogicConfigContainer> mConfigContainerDic = new();
 
-        public CustomLogicConfigMng ConfigMng { get { return mConfigMng; } }
+        public Dictionary<string, LogicConfigContainer> ConfigContainer { get { return mConfigContainerDic; } }
 
         public virtual void InitConfigMng(string xmlPath)
         {
-            mConfigMng = new CustomLogicConfigMng();
-            mConfigMng.ReadXml(xmlPath);
+            var testContainer = new LogicConfigContainer();
+            testContainer.ReadXml(xmlPath);
+            mConfigContainerDic.Add("LogicUnitTest", testContainer);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -38,18 +55,33 @@ namespace CoreGame.Custom
         //主方法：创建并装配一个自定义逻辑
         public CustomLogic CreateCustomLogic(ICustomLogicGenInfo genInfo)
         {
-            if (mConfigMng == null)
+            if (!mConfigContainerDic.TryGetValue(genInfo.ConfigGroupName, out var cfgContainer))
+            {
+                return null;
+            }
+            if (cfgContainer == null)
             {
                 CLHelper.Assert(false, "CreateCustomLogic mConfigMng = null");
                 return null;
             }
-            CustomLogicCfg config = mConfigMng.GetCustomLogicCfg(genInfo.ConfigID);
+            CustomLogicCfg config = cfgContainer.GetCustomLogicCfg(genInfo.LogicConfigID);
             if (config == null)
             {
-                CLHelper.Assert(false, "CreateCustomLogic Cant Find Config : id = " + genInfo.ConfigID);
+                CLHelper.Assert(false, "CreateCustomLogic Cant Find Config : id = " + genInfo.LogicConfigID);
                 return null;
             }
 
+            CustomLogic customLogic = CreateCustomLogic(genInfo, config, cfgContainer);
+            return customLogic;
+        }
+
+        public CustomLogic CreateCustomLogic(ICustomLogicGenInfo genInfo, CustomLogicCfg config, ILogicConfigContainer cfgContainer = null)
+        {
+            if (config == null)
+            {
+                CLHelper.Assert(false, "CreateCustomLogic config == null");
+                return null;
+            }
             System.Type logicType = config.NodeType();
             CustomLogic customLogic = mObjectPool.Create<CustomLogic>(logicType);
 
@@ -57,8 +89,9 @@ namespace CoreGame.Custom
             CustomNodeContext context = new CustomNodeContext();
             context.GenInfo = genInfo;
             context.Logic = customLogic;  //RootNode
-            context.ConfigMng = ConfigMng;
-
+            context.TempleteConfigContainer = cfgContainer;
+            context.NodeFactory = this;
+            context.Blackboard = genInfo.PreBlackboard ?? new KVBlackBoard();
             customLogic.InitializeNode(config, context);
 
             return customLogic;

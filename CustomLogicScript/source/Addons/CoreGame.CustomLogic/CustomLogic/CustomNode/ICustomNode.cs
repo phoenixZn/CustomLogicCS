@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 
 namespace CoreGame.Custom
 {
@@ -12,6 +13,34 @@ namespace CoreGame.Custom
 
     public interface ICustomNodeXmlCfg : ICustomNodeCfg, IParseFromXml
     {
+        public static ICustomNodeCfg CreateNodeCfg(XmlNode node)
+        {
+            XmlElement cusNode = node as XmlElement;
+            if (cusNode == null)
+            {
+                CLHelper.Assert(false, "CustomLogicConfig PraseNodeCfg ParseError  cusNode == null");
+                return null;
+            }
+
+            string nodeTypeStr = string.Format("{0}{1}", cusNode.GetAttribute("type"), "Cfg");
+            ICustomNodeCfg nodeCfg = NodeConfigTypeRegistry.CreateCustomNodeCfg(nodeTypeStr);
+            if (nodeCfg == null)
+            {
+                CLHelper.Assert(false, "NodeConfigTypeRegistry.CreateCustomNodeCfg == null  nodeTypeStr = " + nodeTypeStr);
+                return null;
+            }
+            var xmlNodeCfg = nodeCfg as IParseFromXml;
+            if (xmlNodeCfg != null)
+            {
+                if (!xmlNodeCfg.ParseFromXml(node))
+                {
+                    node.LogError(nodeTypeStr);
+                }
+            }
+
+            CLHelper.Assert(nodeCfg != null);
+            return nodeCfg;
+        }
     }
 
     public interface INodeCfgList

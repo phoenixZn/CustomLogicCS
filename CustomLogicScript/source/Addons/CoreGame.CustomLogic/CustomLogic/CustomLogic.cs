@@ -40,6 +40,13 @@ namespace CoreGame.Custom
             return typeof(CustomLogic);
         }
 
+        public CustomLogicCfg(){}
+        public CustomLogicCfg(int id, List<ICustomNodeCfg> nodeCfgList)
+        {
+            ID = id;
+            m_nodeCfgList = nodeCfgList;
+        }
+        
         public virtual bool ParseFromXml(System.Xml.XmlNode cfgNode)
         {
             int id = cfgNode.GetLogicConfigID();
@@ -55,7 +62,7 @@ namespace CoreGame.Custom
             {
                 try
                 {
-                    ICustomNodeCfg nodeCfg = CustomLogicConfigMng.CreateNodeCfg(customNode);
+                    ICustomNodeCfg nodeCfg = ICustomNodeXmlCfg.CreateNodeCfg(customNode);
                     this.m_nodeCfgList.Add(nodeCfg);
                 }
                 catch (System.Exception e)
@@ -121,19 +128,25 @@ namespace CoreGame.Custom
                         int templeteID = templeteCfg.LogicID;
                         if (usedTempLogicSet.Contains(templeteID))
                         {
-                            LogWrapper.LogError("ERROR: 循环引用CustomLogic模板!  RootLogicID=" + m_genInfo.ConfigID + ", templeteID=" + templeteID);
+                            LogWrapper.LogError("ERROR: 循环引用CustomLogic模板!  RootLogicID=" + logicCfg.ID + ", templeteID=" + templeteID);
                             continue;
                         }
                         usedTempLogicSet.Add(templeteID);
-                        var logiccfg = context.ConfigMng.GetCustomLogicCfg(templeteID) as CustomLogicCfg;
-                        if (logiccfg != null)
+                        var cfgContainer = context.TempleteConfigContainer;
+                        if (cfgContainer != null)
+                        {
+                            LogWrapper.LogError("ERROR: 使用CustomLogic模板 但没有设定模板库!  RootLogicID=" + logicCfg.ID + ", templeteID=" + templeteID);
+                            continue;
+                        }
+                        var templeteLogicCfg = cfgContainer.GetCustomLogicCfg(templeteID);
+                        if (templeteLogicCfg != null)
                         {
                             //插入模板CustomLogic所配置的各个节点
-                            _InitializeNodes(logiccfg, context, usedTempLogicSet);
+                            _InitializeNodes(templeteLogicCfg, context, usedTempLogicSet);
                         }
                         else
                         {
-                            LogWrapper.LogError("ERROR: CustomLogic模板找不到 RootLogicID=" + m_genInfo.ConfigID + ", templeteID=" + templeteID);
+                            LogWrapper.LogError("ERROR: CustomLogic模板找不到 RootLogicID=" + m_genInfo.LogicConfigID + ", templeteID=" + templeteID);
                         }
                         continue;
                     }

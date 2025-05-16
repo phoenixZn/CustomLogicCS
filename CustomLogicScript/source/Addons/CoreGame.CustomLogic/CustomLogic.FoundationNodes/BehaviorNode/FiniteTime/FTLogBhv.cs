@@ -14,6 +14,13 @@ namespace CoreGame.Custom
 
         public System.Type NodeType() { return typeof(FTLogBhv); }
 
+        public FTLogBhvCfg(){}
+
+        public FTLogBhvCfg(string str)
+        {
+            LogStr = str;
+        }
+        
         public bool ParseFromXml(XmlNode xmlNode)
         {
             LogStr = XmlHelper.GetAttribute(xmlNode, "LogStr");
@@ -35,7 +42,7 @@ namespace CoreGame.Custom
             var theCfg = cfg as FTLogBhvCfg;
             CLHelper.Assert(theCfg != null);
             m_LogStr = theCfg.LogStr;
-            m_logicID = context.GenInfo.ConfigID;
+            m_logicID = context.GenInfo.LogicConfigID;
         }
 
         public override void Destroy()

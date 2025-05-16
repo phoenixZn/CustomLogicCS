@@ -22,7 +22,7 @@ namespace CoreGame.Custom
                 CLHelper.AssertBreak();
                 return false;
             }
-            mCndCfg = CustomLogicConfigMng.CreateNodeCfg(subNode);
+            mCndCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
             return true;
         }
     }

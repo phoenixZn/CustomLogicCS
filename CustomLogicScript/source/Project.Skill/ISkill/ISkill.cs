@@ -17,21 +17,14 @@ namespace CoreGame
         void UpdateSkill(float dt);
     }
 
-    public struct SkillGenInfo : ICustomLogicGenInfo
+    public class SkillGenInfo : ICustomLogicGenInfo
     {
-        public int ConfigID
-        {
-            get { return SkillID; }
-            set { SkillID = value; }
-        }
-
-        public int SkillID;
+        public int SkillID => LogicConfigID;
         public int SkillLevel;
         public int OwnerID;
 
         public void Clear()
         {
-            SkillID = -1;
             SkillLevel = -1;
             OwnerID = -1;
         }

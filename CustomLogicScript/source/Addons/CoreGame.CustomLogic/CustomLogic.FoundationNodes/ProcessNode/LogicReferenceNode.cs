@@ -40,7 +40,7 @@ namespace CoreGame.Custom
         public static void SwitchReferenceCfg(CustomLogic logic, ref ICustomNodeCfg cfg, ref CustomNodeContext context)
         {
             var theCfg = cfg as LogicReferenceCfg;
-            CustomLogicCfg newCfg = context.ConfigMng.GetCustomLogicCfg(theCfg.LogicID);
+            CustomLogicCfg newCfg = context.TempleteConfigContainer.GetCustomLogicCfg(theCfg.LogicID);
             if (newCfg == null)
             {
                 LogWrapper.LogError("LogicReferenceNode Cant Find Config : id = " + theCfg.LogicID);
@@ -49,7 +49,7 @@ namespace CoreGame.Custom
             CustomNodeContext newContext = new CustomNodeContext();
             newContext.GenInfo = context.GenInfo;
             newContext.Logic = logic;    //独立的黑板
-            newContext.ConfigMng = context.ConfigMng;
+            newContext.TempleteConfigContainer = context.TempleteConfigContainer;
 
             cfg = newCfg;
             context = newContext;

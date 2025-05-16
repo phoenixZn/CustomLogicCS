@@ -25,7 +25,7 @@ namespace CoreGame.Custom
 
             XmlNode subNode = xmlNode.SelectSingleNode("Node");
             CLHelper.Assert(subNode != null);
-            BhvCfg = CustomLogicConfigMng.CreateNodeCfg(subNode);
+            BhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
 
             //节点类别限定
             var category = NodeConfigTypeRegistry.GetNodeCfgCategory(BhvCfg.GetType());

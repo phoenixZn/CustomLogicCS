@@ -1,46 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace CoreGame.Custom
 {
-    public struct EntityCustomLogicGenInfo : ICustomLogicGenInfo
-    {
-        int m_configID;
-        public int ConfigID
-        {
-            get { return m_configID; }
-            set { m_configID = value; }
-        }
-    }
-
-    public class TestLogicFactory : CustomLogicFactory
-    {
-        //单例
-        static TestLogicFactory sInstance = null;
-        public static TestLogicFactory Instance()
-        {
-            if (sInstance == null)
-            {
-                sInstance = new TestLogicFactory();
-            }
-            return sInstance;
-        }
-
-        private TestLogicFactory() { }
-
-
-        public override void DoCache()
-        {
-            //cache一些常用的
-            //mObjectPool.Cache<CustomLogic>(40);
-            //mObjectPool.Cache<CndBhvNode>(60);
-            //mObjectPool.Cache<TimeOutCnd>(120);
-            //mObjectPool.Cache<FTRepeatBhv>(5);
-            //mObjectPool.Cache<LogicANDCnd>(5);
-            //mObjectPool.Cache<DelayBhv>(20);
-        }
-    }
-
-
 
     public class TestCustomLogic
     {
@@ -52,11 +14,34 @@ namespace CoreGame.Custom
             string resPath = "../../../source/Project.Test/CustomLogicConfig.xml";
             bool isExist = File.Exists(resPath);
 
-            TestLogicFactory.Instance().InitConfigMng(resPath);
+            CustomLogicFactory.Instance().InitConfigMng(resPath);
 
-            var genInfo = new EntityCustomLogicGenInfo();
-            genInfo.ConfigID = testLogicID;
-            logic = TestLogicFactory.Instance().CreateCustomLogic(genInfo);
+            // var genInfo = new ICustomLogicGenInfo()
+            // {
+            //     LogicConfigID = testLogicID,
+            //     ConfigGroupName = "LogicUnitTest",
+            //     PreBlackboard = null,
+            // };
+            // logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo);
+            
+            var genInfo = new ICustomLogicGenInfo()
+            {
+                LogicConfigID = -1,
+                ConfigGroupName = "LogicUnitTest",
+                PreBlackboard = null,
+            };
+            logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo, 
+                new CustomLogicCfg(-1, new List<ICustomNodeCfg>() 
+                {
+                    new FTSequenceBhvCfg(new List<ICustomNodeCfg>()
+                    {
+                        new FTDelayBhvCfg(2f),
+                        new FTLogBhvCfg("Test1"),
+                        new FTDelayBhvCfg(3f),
+                        new FTLogBhvCfg("Test2"),
+                    }),
+                })
+            );
         }
 
         public void Update(float dt)

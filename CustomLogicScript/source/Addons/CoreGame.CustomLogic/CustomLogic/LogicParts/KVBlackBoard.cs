@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CoreGame.Custom
 {
-    public class KVContext
+    public class KVBlackBoard
 {
     protected Dictionary<string, int> _intValues = new Dictionary<string, int>();
     protected Dictionary<string, float> _floatValues = new Dictionary<string, float>();
@@ -11,17 +11,13 @@ namespace CoreGame.Custom
     protected Dictionary<string, bool> _boolValues = new Dictionary<string, bool>();
     protected Dictionary<string, object> _objectValues = new Dictionary<string, object>();
     protected Dictionary<string, Vector3> _vectorValues = new Dictionary<string, Vector3>();
-    //不要再加下面这种了，都用_objectValues
-    protected Dictionary<string, List<int>> _intListValues = new Dictionary<string, List<int>>();
+
     public bool IsInPool = false;
 
-    public KVContext()
+    public KVBlackBoard()
     {
-
     }
-
-
-
+    
     public void Clear()
     {
         _intValues.Clear();
@@ -30,7 +26,6 @@ namespace CoreGame.Custom
         _boolValues.Clear();
         _objectValues.Clear();
         _vectorValues.Clear();
-        _intListValues.Clear();
     }
 
     public void SetInt(string key, int value)
@@ -284,42 +279,7 @@ namespace CoreGame.Custom
         }
         return _vectorValues.TryGetValue(key, out value);
     }
-
-
-    public void SetIntList(string key, List<int> value)
-    {
-        if (IsInPool)
-        {
-            LogWrapper.LogError("错误的使用了池子中的资源");
-        }
-        _intListValues[key] = value;
-    }
-    public void SetIntList(string key, int value)
-    {
-        if (IsInPool)
-        {
-            LogWrapper.LogError("错误的使用了池子中的资源");
-        }
-        var list = GetIntList(key);
-        list.Add(value);
-        SetIntList(key, list);
-    }
-
-    public List<int> GetIntList(string key)
-    {
-        if (IsInPool)
-        {
-            LogWrapper.LogError("错误的使用了池子中的资源");
-        }
-
-        if (_intListValues.TryGetValue(key, out var value))
-        {
-            return value;
-        }
-        value = new List<int>();
-        return value;
-    }
-
+    
     public bool HasKey(string key)
     {
         if (IsInPool)
@@ -338,9 +298,6 @@ namespace CoreGame.Custom
             return true;
         if (_vectorValues.ContainsKey(key))
             return true;
-        if (_intListValues.ContainsKey(key))
-            return true;
-
         return false;
     }
 
@@ -374,13 +331,9 @@ namespace CoreGame.Custom
         {
             _vectorValues.Remove(key);
         }
-        if (_intListValues.ContainsKey(key))
-        {
-            _intListValues.Remove(key);
-        }
     }
 
-    public void Copy(KVContext target, bool overlap = false)
+    public void Copy(KVBlackBoard target, bool overlap = false)
     {
         if (IsInPool)
         {
@@ -432,17 +385,10 @@ namespace CoreGame.Custom
             else
                 _vectorValues.Add(item.Key, item.Value);
         }
-        foreach (var item in target._intListValues)
-        {
-            if (overlap)
-                _intListValues[item.Key] = item.Value;
-            else
-                _intListValues.Add(item.Key, item.Value);
-        }
     }
 
 
-    public void CopyFloat(KVContext target, string key)
+    public void CopyFloat(KVBlackBoard target, string key)
     {
         if (IsInPool)
         {
@@ -451,7 +397,7 @@ namespace CoreGame.Custom
         SetFloat(key, target.GetFloat(key));
     }
 
-    public void CopyBool(KVContext target, string key)
+    public void CopyBool(KVBlackBoard target, string key)
     {
         if (IsInPool)
         {
@@ -459,7 +405,7 @@ namespace CoreGame.Custom
         }
         SetBool(key, target.GetBool(key));
     }
-    public void CopyInt(KVContext target, string key)
+    public void CopyInt(KVBlackBoard target, string key)
     {
         if (IsInPool)
         {

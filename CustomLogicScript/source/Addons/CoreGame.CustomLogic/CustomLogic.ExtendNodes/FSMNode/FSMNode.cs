@@ -28,7 +28,7 @@ namespace CoreGame.Custom
             StateList = new List<ICustomNodeCfg>();
             foreach (XmlNode subNode in subNodeList)
             {
-                ICustomNodeCfg cfg = CustomLogicConfigMng.CreateNodeCfg(subNode);
+                ICustomNodeCfg cfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
                 StateList.Add(cfg);
             }
             if (this.StateList.Count == 0)

@@ -13,13 +13,22 @@ namespace CoreGame.Custom
     //静态配置
     public class FTSequenceBhvCfg : ICustomNodeXmlCfg, IHasSubCfgList
     {
-        public NodeCfgList SubCfgList = new NodeCfgList();
+        private List<ICustomNodeCfg> mSubCfgList = null;
+        public List<ICustomNodeCfg> SubCfgList => mSubCfgList;
 
         public System.Type NodeType() { return typeof(FTSequenceBhv); }
 
+        public FTSequenceBhvCfg(){}
+
+        public FTSequenceBhvCfg(List<ICustomNodeCfg> nodeCfgList)
+        {
+            mSubCfgList = nodeCfgList;
+        }
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            return SubCfgList.ParseFromXml(xmlNode);
+            NodeCfgList cfglist = new();
+            mSubCfgList = cfglist;
+            return cfglist.ParseFromXml(xmlNode);
         }
         public List<ICustomNodeCfg> GetNodeCfgList() { return SubCfgList; }
     }

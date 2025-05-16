@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace CoreGame.Custom
 {
-    public interface ICustomLogicConfigMng
+    public interface ILogicConfigContainer
     {
         CustomLogicCfg GetCustomLogicCfg(int id);
     }
@@ -12,10 +12,13 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     //自定义逻辑配置管理器
     //////////////////////////////////////////////////////////////////////////
-    public class CustomLogicConfigMng : ICustomLogicConfigMng
+    public class LogicConfigContainer : ILogicConfigContainer
     {
+        //<自定义逻辑ID, 配置信息>
+        private Dictionary<int, CustomLogicCfg> mCustomCfgMap = new();
+        
         //////////////////////////////////////////////////////////////////////////
-        //ICustomLogicConfigMng
+        //ILogicConfigContainer
         public CustomLogicCfg GetCustomLogicCfg(int id)
         {
             if (mCustomCfgMap.ContainsKey(id))
@@ -24,12 +27,7 @@ namespace CoreGame.Custom
             }
             return null;
         }
-
-        #region 临时读配置
-
-        //<自定义逻辑ID, 配置信息>
-        private Dictionary<int, CustomLogicCfg> mCustomCfgMap = new Dictionary<int, CustomLogicCfg>();
-
+        
         //读取Xml配置
         public bool ReadXml(string xmlPath)
         {
@@ -48,7 +46,7 @@ namespace CoreGame.Custom
             XmlNodeList cfgNodeList = root.SelectNodes("ConfigItem");
             foreach (XmlElement cfgNode in cfgNodeList)
             {
-                CustomLogicCfg cfg = CreateNodeCfg(cfgNode) as CustomLogicCfg;
+                CustomLogicCfg cfg = ICustomNodeXmlCfg.CreateNodeCfg(cfgNode) as CustomLogicCfg;
                 if (cfg == null)
                 {
                     continue;
@@ -63,35 +61,5 @@ namespace CoreGame.Custom
             return true;
         }
 
-        #endregion 临时读配置
-
-        public static ICustomNodeCfg CreateNodeCfg(XmlNode node)
-        {
-            XmlElement cusNode = node as XmlElement;
-            if (cusNode == null)
-            {
-                CLHelper.Assert(false, "CustomLogicConfig PraseNodeCfg ParseError  cusNode == null");
-                return null;
-            }
-
-            string nodeTypeStr = string.Format("{0}{1}", cusNode.GetAttribute("type"), "Cfg");
-            ICustomNodeCfg nodeCfg = NodeConfigTypeRegistry.CreateCustomNodeCfg(nodeTypeStr);
-            if (nodeCfg == null)
-            {
-                CLHelper.Assert(false, "NodeConfigTypeRegistry.CreateCustomNodeCfg == null  nodeTypeStr = " + nodeTypeStr);
-                return null;
-            }
-            var xmlNodeCfg = nodeCfg as IParseFromXml;
-            if (xmlNodeCfg != null)
-            {
-                if (!xmlNodeCfg.ParseFromXml(node))
-                {
-                    node.LogError(nodeTypeStr);
-                }
-            }
-
-            CLHelper.Assert(nodeCfg != null);
-            return nodeCfg;
-        }
     }
 }

@@ -29,7 +29,7 @@ namespace CoreGame.Custom
                 return false;
             foreach (XmlNode subNode in subNodeList)
             {
-                ICustomNodeCfg cndCfg = CustomLogicConfigMng.CreateNodeCfg(subNode);
+                ICustomNodeCfg cndCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
                 CndCfgList.Add(cndCfg);
             }
             if (this.CndCfgList.Count == 0)

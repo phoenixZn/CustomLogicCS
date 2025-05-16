@@ -11,18 +11,25 @@ namespace CoreGame.Custom
     }
     public class FTDelayBhvCfg : ICustomNodeXmlCfg
     {
-        public float TimeLen { get { return timeLen; } }           //延迟时间
-        float timeLen;
+        public float TimeLen { get { return mTimeLen; } }           //延迟时间
+        float mTimeLen;
 
         public System.Type NodeType() { return typeof(FTDelayBhv); }
 
+        public FTDelayBhvCfg(){}
+
+        public FTDelayBhvCfg(float timeLen)
+        {
+            mTimeLen = timeLen;
+        }
+        
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            timeLen = 0f;
+            mTimeLen = 0f;
             string str = XmlHelper.GetAttribute(xmlNode, "TimeLen");
             if (!string.IsNullOrEmpty(str))
             {
-                float.TryParse(str, out timeLen);
+                float.TryParse(str, out mTimeLen);
             }
             return true;
         }

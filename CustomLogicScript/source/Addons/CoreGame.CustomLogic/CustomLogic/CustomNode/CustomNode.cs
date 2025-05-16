@@ -9,11 +9,20 @@ using System.Collections.Generic;
 
 namespace CoreGame.Custom
 {
-    public struct CustomNodeContext
+    //////////////////////////////////////////////////////////////////////////
+    // CustomNodeContext 
+    // 逻辑内流通，接口性质的上下文结构，（不应被修改）
+    // 如果项目确定因为特殊情况，需要扩展，只能添加一个 CustomNodeContext 的继承类
+    //////////////////////////////////////////////////////////////////////////
+    public class CustomNodeContext
     {
-        public ICustomLogicGenInfo GenInfo;
-        public CustomLogic Logic;
-        public CustomLogicConfigMng ConfigMng;
+        public ICustomLogicGenInfo GenInfo = null;
+        public CustomLogic Logic = null;
+        public KVBlackBoard Blackboard = null;
+        //模板配置库（静态配置get），支持通过ID复用一整个配置当模板
+        public ILogicConfigContainer TempleteConfigContainer = null;    
+        //逻辑节点工厂（运行时逻辑节点get）
+        public CustomLogicFactory NodeFactory = null;   
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -23,6 +32,8 @@ namespace CoreGame.Custom
     {
         private bool m_isActive = false;
         protected VariablesLib m_varLibRef;
+        protected KVBlackBoard mBlackBoardRef;
+        protected CustomNodeContext mContext;
 
         //////////////////////////////////////////////////////////////////////////
         // ICanRecycle
@@ -37,6 +48,7 @@ namespace CoreGame.Custom
         public virtual void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             m_varLibRef = context.Logic.VarLib;
+            mBlackBoardRef = context.Blackboard;
             Activate(); 
         }
 

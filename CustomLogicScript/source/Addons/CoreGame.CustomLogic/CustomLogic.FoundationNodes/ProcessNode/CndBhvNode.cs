@@ -21,8 +21,8 @@ namespace CoreGame.Custom
 
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            mConditionCfg = CustomLogicConfigMng.CreateNodeCfg(xmlNode.SelectSingleNode("Condition"));
-            mBehaviorCfg = CustomLogicConfigMng.CreateNodeCfg(xmlNode.SelectSingleNode("Bhv"));
+            mConditionCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("Condition"));
+            mBehaviorCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("Bhv"));
 
             var categoryCnd = NodeConfigTypeRegistry.GetNodeCfgCategory(mConditionCfg.GetType());
             var categoryBhv = NodeConfigTypeRegistry.GetNodeCfgCategory(mBehaviorCfg.GetType());
