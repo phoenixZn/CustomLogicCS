@@ -5,7 +5,7 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     //能在有限固定时间内结束的行为
     //////////////////////////////////////////////////////////////////////////
-    public abstract class FiniteTimeBhv : HasBeginBhv, INeedStopCheck
+    public abstract class FiniteTimeBhv : BehaviorNodeBase, INeedStopCheck
     {
         //行为的持续时间
         private float mDuration = 0;

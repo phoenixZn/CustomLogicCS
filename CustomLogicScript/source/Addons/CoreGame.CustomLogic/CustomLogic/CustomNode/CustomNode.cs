@@ -32,9 +32,11 @@ namespace CoreGame.Custom
     {
         private bool m_isActive = false;
         protected VariablesLib m_varLibRef;
-        protected KVBlackBoard mBlackBoardRef;
         protected CustomNodeContext mContext;
-
+        
+        public VariablesLib VariablesLibRef => m_varLibRef;
+        public KVBlackBoard BlackBoardRef => mContext.Blackboard;
+        
         //////////////////////////////////////////////////////////////////////////
         // ICanRecycle
         public virtual void Destroy()
@@ -48,7 +50,6 @@ namespace CoreGame.Custom
         public virtual void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             m_varLibRef = context.Logic.VarLib;
-            mBlackBoardRef = context.Blackboard;
             Activate(); 
         }
 

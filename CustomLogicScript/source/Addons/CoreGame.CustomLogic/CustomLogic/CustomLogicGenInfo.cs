@@ -21,7 +21,7 @@ namespace CoreGame.Custom
         //初始数据黑板
         protected KVBlackBoard mPreBlackboard = null;
         //配置组名
-        protected string mConfigGroupName;
+        protected string mConfigContainerName;
         
         public int LogicConfigID
         {
@@ -35,10 +35,10 @@ namespace CoreGame.Custom
             set { mPreBlackboard = value; }
         }
         
-        public string ConfigGroupName        
+        public string ConfigContainerName        
         {
-            get { return mConfigGroupName; }
-            set { mConfigGroupName = value; }
+            get { return mConfigContainerName; }
+            set { mConfigContainerName = value; }
         }
 
     }

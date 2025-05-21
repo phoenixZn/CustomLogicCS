@@ -55,7 +55,7 @@ namespace CoreGame.Custom
         //主方法：创建并装配一个自定义逻辑
         public CustomLogic CreateCustomLogic(ICustomLogicGenInfo genInfo)
         {
-            if (!mConfigContainerDic.TryGetValue(genInfo.ConfigGroupName, out var cfgContainer))
+            if (!mConfigContainerDic.TryGetValue(genInfo.ConfigContainerName, out var cfgContainer))
             {
                 return null;
             }
@@ -84,6 +84,11 @@ namespace CoreGame.Custom
             }
             System.Type logicType = config.NodeType();
             CustomLogic customLogic = mObjectPool.Create<CustomLogic>(logicType);
+            if (genInfo == null)
+            {
+                genInfo = new ICustomLogicGenInfo();
+            }
+            genInfo.LogicConfigID = config.ID;
 
             //区别于CreateCustomNode
             CustomNodeContext context = new CustomNodeContext();

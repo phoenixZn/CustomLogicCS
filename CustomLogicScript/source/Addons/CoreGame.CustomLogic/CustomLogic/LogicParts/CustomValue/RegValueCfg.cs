@@ -4,56 +4,94 @@ using System.Collections.Generic;
 
 namespace CoreGame.Custom
 {
-    public class VarValueCfg<T> : IValueConfig<T>, IUseVariablesLib
+    public abstract class FormatValueCfg<T> : IValueConfig<T>
     {
-        string mVarID;
-        VariablesLib mLib;
-
-        public T Value
+        protected string mVarID = null;
+        protected T mDefaultValue;
+        
+        public FormatValueCfg(T defaultValue)
         {
-            get
+            mDefaultValue = defaultValue;
+        }
+        
+        //////////////////////////////////////////////////////////////////////////
+        //as: IValueConfig<T>
+        public T GetValue()
+        {
+            return mDefaultValue;
+        }
+
+        public T GetValue(CustomNode node)
+        {
+            VariablesLib varLib = node.VariablesLibRef;
+            if (varLib != null && !string.IsNullOrEmpty(mVarID))
             {
-                if (mLib != null)
-                {
-                    T ret;
-                    if (mLib.ReadVar<T>(mVarID, out ret))
-                        return ret;
-                }
-                return default(T);
+                if (varLib.ReadVar<T>(mVarID, out var ret))
+                    return ret;
             }
+            return mDefaultValue;
         }
 
-        public static bool CanParse(string s)
+        public abstract bool ParseByString(string str);
+
+        public bool ParseByFormatString(string str)
         {
-            return s.StartsWith("RegInt[");
+            if (str.StartsWith("BB#"))
+            {
+                mVarID = str.Substring(3);
+            }
+            return ParseByString(str);
+        }
+        
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    public class IntCfg : FormatValueCfg<int>
+    {
+        public IntCfg(int defaultValue) : base(defaultValue)
+        {
         }
 
-        public bool Parse(string s)
+        public override bool ParseByString(string str)
         {
-            string[] strID = s.Split(new char[] { '[', ']' });
-            mVarID = strID[1];
+             if (int.TryParse(str, out mDefaultValue))
+             {
+                 return true;
+             }
+             return false;
+        }
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    public class FloatCfg : FormatValueCfg<float>
+    {
+        public FloatCfg(float defaultValue) : base(defaultValue)
+        {
+        }
+        
+        public override bool ParseByString(string str)
+        {
+            if (float.TryParse(str, out mDefaultValue))
+            {
+                return true;
+            }
             return false;
         }
-
-        public void BindVariablesLib(VariablesLib varLib)
-        {
-            mLib = varLib;
-        }
-        public void UnBindVariablesLib()
-        {
-            mLib = null;
-        }
     }
-
-
+    
     //////////////////////////////////////////////////////////////////////////
-    public class VarIntCfg : VarValueCfg<int>
+    public class StringCfg : FormatValueCfg<string>
     {
-    }
-
-
-    //////////////////////////////////////////////////////////////////////////
-    public class VarFloatCfg : VarValueCfg<float>
-    {
+        public StringCfg(string defaultValue) : base(defaultValue)
+        {
+        }
+        
+        public override bool ParseByString(string str)
+        {
+            mDefaultValue = str;
+            return true;
+        }
     }
 }

@@ -1,6 +1,6 @@
 namespace CoreGame.Custom
 {
-    public abstract class HasBeginBhv : CustomNode, IBehavior
+    public abstract class BehaviorNodeBase : CustomNode, IBehavior
     {
         //需要知道第一次Update的行为
         private bool mHasUpdate = false;

@@ -7,8 +7,8 @@ namespace CoreGame.Custom
 {
     public interface IValueConfig<T>
     {
-        T Value { get; }
-        bool Parse(string s);
+        T GetValue();
+        bool ParseByFormatString(string s);
     }
-
+    
 }

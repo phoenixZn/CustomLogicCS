@@ -56,7 +56,7 @@ namespace CoreGame.Custom
             var genInfo = new ICustomLogicGenInfo()
             {
                 LogicConfigID = -1,
-                ConfigGroupName = "LogicUnitTest",
+                ConfigContainerName = "LogicUnitTest",
                 PreBlackboard = null,
             };
             logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo, 
