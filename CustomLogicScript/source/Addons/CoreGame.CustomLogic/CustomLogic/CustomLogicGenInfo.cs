@@ -19,7 +19,7 @@ namespace CoreGame.Custom
         //逻辑配置ID
         protected int mLogicConfigID = 0;
         //初始数据黑板
-        protected KVBlackBoard mPreBlackboard = null;
+        protected VarEnv MPreEnv = null;
         //配置组名
         protected string mConfigContainerName;
         
@@ -29,10 +29,10 @@ namespace CoreGame.Custom
             set { mLogicConfigID = value; }
         }
         
-        public KVBlackBoard PreBlackboard        
+        public VarEnv PreEnv        
         {
-            get { return mPreBlackboard; }
-            set { mPreBlackboard = value; }
+            get { return MPreEnv; }
+            set { MPreEnv = value; }
         }
         
         public string ConfigContainerName        

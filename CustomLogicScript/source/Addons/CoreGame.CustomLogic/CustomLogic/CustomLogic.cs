@@ -82,21 +82,13 @@ namespace CoreGame.Custom
     public class CustomLogic : CustomNode, INeedUpdate, INeedStopCheck
     {
         //自定义的子节点
-        protected List<ICustomNode> m_customNodes;
-        //运行时初始数据
-        protected ICustomLogicGenInfo m_genInfo = null;
-        //黑板
-        protected VariablesLib m_varLibImp;
+        protected List<ICustomNode> mNodes;
 
 
         public CustomLogic()
         {
-            m_varLibImp = new VariablesLib();
-            m_customNodes = new List<ICustomNode>();
-            m_genInfo = null;
+            mNodes = new List<ICustomNode>();
         }
-
-        public VariablesLib VarLib { get { return m_varLibImp; } }
 
         //////////////////////////////////////////////////////////////////////////
         // ICustomNode
@@ -105,8 +97,7 @@ namespace CoreGame.Custom
         public override void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             base.InitializeNode(cfg, context);
-
-            m_genInfo = context.GenInfo;
+            
             var logicCfg = cfg as CustomLogicCfg;
             usedTempLogicSet.Clear();
 
@@ -146,13 +137,13 @@ namespace CoreGame.Custom
                         }
                         else
                         {
-                            LogWrapper.LogError("ERROR: CustomLogic模板找不到 RootLogicID=" + m_genInfo.LogicConfigID + ", templeteID=" + templeteID);
+                            LogWrapper.LogError("ERROR: CustomLogic模板找不到 RootLogicID=" + GenInfo.LogicConfigID + ", templeteID=" + templeteID);
                         }
                         continue;
                     }
                     ////////////////////////////// 处理模板引用 End ////////////////////////////
 
-                    CustomNode theNode = CustomLogicFactory.CreateCustomNode(nodeCfg, context);
+                    CustomNode theNode = mContext.NodeFactory.CreateCustomNode(nodeCfg, context);
                     this.AddCustomNode(theNode);
                 }
                 catch (System.Exception e)
@@ -166,16 +157,15 @@ namespace CoreGame.Custom
         public override void Destroy()
         {
             //节点
-            for (int i = 0; i < m_customNodes.Count; ++i)
+            for (int i = 0; i < mNodes.Count; ++i)
             {
-                CustomLogicFactory.ObjectPool().Destroy(m_customNodes[i]);
+                mContext.NodeFactory.DestroyCustomNode(mNodes[i]);
             }
-            m_customNodes.Clear();
+            mNodes.Clear();
             ClearInterfaceCache();
 
             //黑板
-            m_varLibRef.Clear();
-            m_genInfo = null;
+            VarEnvRef.Clear();
 
             base.Destroy();
         }
@@ -187,9 +177,9 @@ namespace CoreGame.Custom
 
         public override void CollectInterfaceInChildren<T>(ref List<T> interfaceList)
         {
-            for (int i = 0; i < m_customNodes.Count; ++i)
+            for (int i = 0; i < mNodes.Count; ++i)
             {
-                CustomNode.TraverseCollectInterface(ref interfaceList, m_customNodes[i]);
+                CustomNode.TraverseCollectInterface(ref interfaceList, mNodes[i]);
             }
         }
 
@@ -197,7 +187,7 @@ namespace CoreGame.Custom
         //self
         internal virtual void AddCustomNode(CustomNode node)
         {
-            m_customNodes.Add(node);
+            mNodes.Add(node);
             CacheInterface(node);
         }
 
@@ -226,7 +216,7 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         //INeedUpdate
-        public bool Update(float dt)
+        public float Update(float dt)
         {
             for (int i = 0; i < mNeedUpdateList.Count; ++i)
             {
@@ -238,7 +228,7 @@ namespace CoreGame.Custom
                 }
             }
 
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

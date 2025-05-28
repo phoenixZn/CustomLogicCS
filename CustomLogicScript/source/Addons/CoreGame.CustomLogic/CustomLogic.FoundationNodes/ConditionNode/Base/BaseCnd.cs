@@ -8,7 +8,7 @@ namespace CoreGame.Custom
         //////////////////////////////////////////////////////////////////////////
         // ICondition
         public abstract bool IsConditionReached();
-        public virtual bool Update(float dt) { return true; }
+        public virtual float Update(float dt) { return dt; }
         public virtual void Reset() { }
     }
 

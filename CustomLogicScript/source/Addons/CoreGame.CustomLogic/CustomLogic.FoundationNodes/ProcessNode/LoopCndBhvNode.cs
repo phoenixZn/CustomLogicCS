@@ -46,8 +46,8 @@ namespace CoreGame.Custom
         {
             base.InitializeNode(cfg, context);
             CndBhvNodeCfg theCfg = cfg as CndBhvNodeCfg;
-            mCondition = CustomLogicFactory.CreateCustomNode(theCfg.mConditionCfg, context) as BaseCnd;
-            mBehavior = CustomLogicFactory.CreateCustomNode(theCfg.mBehaviorCfg, context) as FiniteTimeBhv;
+            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context) as BaseCnd;
+            mBehavior = mContext.NodeFactory.CreateCustomNode(theCfg.mBehaviorCfg, context) as FiniteTimeBhv;
             CLHelper.Assert(mCondition != null);
             CLHelper.Assert(mBehavior != null);
         }
@@ -60,8 +60,8 @@ namespace CoreGame.Custom
 
         public override void Destroy()
         {
-            CustomLogicFactory.ObjectPool().Destroy(mCondition as ICanRecycle);
-            CustomLogicFactory.ObjectPool().Destroy(mBehavior as ICanRecycle);
+            mContext.NodeFactory.DestroyCustomNode(mCondition as CustomNode);
+            mContext.NodeFactory.DestroyCustomNode(mBehavior as CustomNode);
             mCondition = null;
             mBehavior = null;
         }
@@ -69,10 +69,10 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         // INeedUpdate
-        public virtual bool Update(float dt)
+        public virtual float Update(float dt)
         {
             if (dt == 0)
-                return true;
+                return dt;
             mCondition.Update(dt);
             //如果条件达成，则行为触发、开始Update
             if (mCondition.IsConditionReached())
@@ -84,7 +84,7 @@ namespace CoreGame.Custom
                     mBehavior.Reset();
                 }
             }
-            return true;
+            return dt;
         }
     }
 }

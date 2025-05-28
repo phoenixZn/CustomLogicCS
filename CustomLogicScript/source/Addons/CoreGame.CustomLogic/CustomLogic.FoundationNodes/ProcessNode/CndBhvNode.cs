@@ -50,8 +50,8 @@ namespace CoreGame.Custom
             base.InitializeNode(cfg, context);
             CndBhvNodeCfg theCfg = cfg as CndBhvNodeCfg;
 
-            mCndNode = CustomLogicFactory.CreateCustomNode(theCfg.mConditionCfg, context);
-            mBhvNode = CustomLogicFactory.CreateCustomNode(theCfg.mBehaviorCfg, context);
+            mCndNode = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context);
+            mBhvNode = mContext.NodeFactory.CreateCustomNode(theCfg.mBehaviorCfg, context);
             CLHelper.Assert(mCndNode != null);
             CLHelper.Assert(mBhvNode != null);
             mBhvNode.Deactivate();  //行为一开始处于非激活状态
@@ -64,8 +64,8 @@ namespace CoreGame.Custom
 
         public override void Destroy()
         {
-            CustomLogicFactory.ObjectPool().Destroy(mCondition as ICanRecycle);
-            CustomLogicFactory.ObjectPool().Destroy(mBehavior as ICanRecycle);
+            mContext.NodeFactory.DestroyCustomNode(mCondition as CustomNode);
+            mContext.NodeFactory.DestroyCustomNode(mBehavior as CustomNode);
             mCondition = null;
             mBehavior = null;
             mCndNode = null;
@@ -126,10 +126,10 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         // INeedUpdate
-        public virtual bool Update(float dt)
+        public virtual float Update(float dt)
         {
             if (dt == 0)
-                return true;
+                return dt;
 
             var updateCnd = mCondition as INeedUpdate;
             if (updateCnd != null)
@@ -156,7 +156,7 @@ namespace CoreGame.Custom
             {
                 mBehavior.Update(dt);
             }
-            return true;
+            return dt;
         }
     }
 }

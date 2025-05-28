@@ -10,29 +10,30 @@ namespace CoreGame.Custom
     }
     public class FTLogBhvCfg : ICustomNodeXmlCfg
     {
-        public StringCfg LogStr;
+        public string LogStr;
 
         public System.Type NodeType() { return typeof(FTLogBhv); }
 
         public FTLogBhvCfg()
         {
-            LogStr = new StringCfg("");
+            LogStr = "";
         }
 
         public FTLogBhvCfg(string str)
         {
-            LogStr = new StringCfg(str);
+            LogStr = str;
         }
         
         public bool ParseFromXml(XmlNode xmlNode)
         {
             var str = XmlHelper.GetAttribute(xmlNode, "LogStr");
             CLHelper.Assert(!string.IsNullOrEmpty(str));
-            return LogStr.ParseByFormatString(str);
+            LogStr = str;
+            return true;
         }
     }
 
-    public class FTLogBhv : FiniteTimeBhv
+    public class FTLogBhv : FiniteTimeBhv//BehaviorNodeBase
     {
         private string m_LogStr;
         private int m_logicID;
@@ -44,7 +45,7 @@ namespace CoreGame.Custom
             base.InitializeNode(cfg, context);
             var theCfg = cfg as FTLogBhvCfg;
             CLHelper.Assert(theCfg != null);
-            m_LogStr = theCfg.LogStr.GetValue(this);
+            m_LogStr = theCfg.LogStr;
             m_logicID = context.GenInfo.LogicConfigID;
         }
 

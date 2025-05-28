@@ -40,7 +40,7 @@ namespace CoreGame.Custom
             mIsEnd = false;
         } 
 
-        public override bool Update(float dt)
+        public override float Update(float dt)
         {
             if (!IsDurationEnd())
             {
@@ -57,7 +57,7 @@ namespace CoreGame.Custom
                 mIsEnd = true;
                 OnDurationEnd();
             }
-            return true;
+            return dt;
         }
 
         public override void Destroy()

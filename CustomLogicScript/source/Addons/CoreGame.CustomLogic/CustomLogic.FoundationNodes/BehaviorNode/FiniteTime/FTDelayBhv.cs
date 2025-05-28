@@ -11,27 +11,32 @@ namespace CoreGame.Custom
     }
     public class FTDelayBhvCfg : ICustomNodeXmlCfg
     {
-        public float TimeLen { get { return mTimeLen; } }           //延迟时间
-        float mTimeLen;
+        public FloatCfg TimeLen { get { return mTimeLen; } }           //延迟时间
+        FloatCfg mTimeLen;
 
         public System.Type NodeType() { return typeof(FTDelayBhv); }
 
-        public FTDelayBhvCfg(){}
+        public FTDelayBhvCfg()
+        {
+            mTimeLen = new FloatCfg(0f);
+        }
 
         public FTDelayBhvCfg(float timeLen)
         {
-            mTimeLen = timeLen;
+            mTimeLen = new FloatCfg(timeLen);
+        }
+        
+        public FTDelayBhvCfg(string varID)
+        {
+            mTimeLen = new FloatCfg(0f);
+            mTimeLen.SetVarID(varID);
         }
         
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            mTimeLen = 0f;
-            string str = XmlHelper.GetAttribute(xmlNode, "TimeLen");
-            if (!string.IsNullOrEmpty(str))
-            {
-                float.TryParse(str, out mTimeLen);
-            }
-            return true;
+            var str = XmlHelper.GetAttribute(xmlNode, "TimeLen");
+            CLHelper.Assert(!string.IsNullOrEmpty(str));
+            return mTimeLen.ParseByFormatString(str);
         }
 
     }
@@ -46,7 +51,8 @@ namespace CoreGame.Custom
         {
             base.InitializeNode(cfg, context);
             mCfg = cfg as FTDelayBhvCfg;
-            InitDuration(mCfg.TimeLen);
+            var timeLen = mCfg.TimeLen.GetValue(this);
+            InitDuration(timeLen);
         }
 
         public override void Destroy()
@@ -57,7 +63,7 @@ namespace CoreGame.Custom
         public override void Reset()
         {
             base.Reset();
-            InitDuration(mCfg.TimeLen);
+            InitDuration(mCfg.TimeLen.GetValue(this));
         }
 
         protected override void OnBegin()

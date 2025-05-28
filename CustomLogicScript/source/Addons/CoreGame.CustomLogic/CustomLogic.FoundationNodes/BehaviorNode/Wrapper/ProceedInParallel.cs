@@ -57,7 +57,7 @@ namespace CoreGame.Custom
             for (int i = 0; i < theCfg.SubCfgList.Count; ++i)
             {
                 ICustomNodeCfg bhvCfg = theCfg.SubCfgList[i];
-                var subbhv = CustomLogicFactory.CreateCustomNode(bhvCfg, context);
+                var subbhv = mContext.NodeFactory.CreateCustomNode(bhvCfg, context);
                 AddBhv(subbhv);
             }
 
@@ -100,8 +100,7 @@ namespace CoreGame.Custom
             {
                 for (int i = 0; i < mNodeList.Count; ++i)
                 {
-                    ICanRecycle irc = mNodeList[i] as ICanRecycle;
-                    CustomLogicFactory.ObjectPool().Destroy(irc);
+                    mContext.NodeFactory.DestroyCustomNode(mNodeList[i]);
                 }
                 mNodeList.Clear();
             }
@@ -119,11 +118,11 @@ namespace CoreGame.Custom
             Activate();
         }
 
-        public bool Update(float dt)
+        public float Update(float dt)
         {
             CLHelper.Assert(mNodeList != null);
             if (mNodeList == null)
-                return true;
+                return dt;
 
             for (int i = 0; i < mNodeList.Count; ++i)
             {
@@ -140,7 +139,7 @@ namespace CoreGame.Custom
                     node.Deactivate();
                 }
             }
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

@@ -57,7 +57,7 @@ namespace CoreGame.Custom
         {
             base.Destroy();
             mInterval = 0;
-            CustomLogicFactory.ObjectPool().Destroy(mBhv);
+            mContext.NodeFactory.DestroyCustomNode(mBhv);
             mBhv = null;
         }
 

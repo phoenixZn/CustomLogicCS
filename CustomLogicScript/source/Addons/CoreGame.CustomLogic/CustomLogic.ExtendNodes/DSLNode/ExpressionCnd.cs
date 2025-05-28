@@ -57,7 +57,7 @@ namespace CoreGame.Custom
         // ICondition
         public bool IsConditionReached()
         {
-            FixPoint v = m_cfg.Code.Evaluate(m_varLibRef);
+            FixPoint v = m_cfg.Code.Evaluate(VarEnvRef);
             return (v != FixPoint.Zero);
         }
 

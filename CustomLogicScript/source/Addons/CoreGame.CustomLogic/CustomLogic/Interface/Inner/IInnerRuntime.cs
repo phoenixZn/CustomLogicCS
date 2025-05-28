@@ -20,7 +20,7 @@ namespace CoreGame.Custom
     // 不实现此接口，则节点不会按帧更新
     public interface INeedUpdate
     {
-        bool Update(float dt);
+        float Update(float dt);
     }
 
     // 需要检查是否执行结束

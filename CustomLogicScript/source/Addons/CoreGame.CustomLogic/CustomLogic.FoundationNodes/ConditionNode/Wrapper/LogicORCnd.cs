@@ -28,7 +28,7 @@ namespace CoreGame.Custom
             for (int i = 0; i < cndcfg.CndCfgList.Count; ++i)
             {
                 ICustomNodeCfg subcndCfg = cndcfg.CndCfgList[i];
-                ICondition subcnd = CustomLogicFactory.CreateCustomNode(subcndCfg, context) as ICondition;
+                ICondition subcnd = mContext.NodeFactory.CreateCustomNode(subcndCfg, context) as ICondition;
                 Add(subcnd);
             }
         }
@@ -45,19 +45,18 @@ namespace CoreGame.Custom
                 return;
             for (int i = 0; i < mCndList.Count; ++i)
             {
-                ICanRecycle icr = mCndList[i] as ICanRecycle;
-                CustomLogicFactory.ObjectPool().Destroy(icr);
+                mContext.NodeFactory.DestroyCustomNode(mCndList[i] as CustomNode);
             }
             mCndList.Clear();
         }
 
         //////////////////////////////////////////////////////////////////////////
         // ICondition
-        public override bool Update(float dt)
+        public override float Update(float dt)
         {
             CLHelper.Assert(mCndList != null);
             if (mCndList == null)
-                return true;
+                return dt;
             for (int i = 0; i < mCndList.Count; ++i)
             {
                 var updateCnd = mCndList[i] as INeedUpdate;
@@ -66,7 +65,7 @@ namespace CoreGame.Custom
                     updateCnd.Update(dt);
                 }
             }
-            return true;
+            return dt;
         }
 
         public override bool IsConditionReached()

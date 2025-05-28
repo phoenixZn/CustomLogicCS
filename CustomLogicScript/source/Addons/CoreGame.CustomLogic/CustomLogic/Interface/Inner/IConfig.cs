@@ -31,7 +31,7 @@ namespace CoreGame.Custom
 
     public interface IUseVariablesLib
     {
-        void BindVariablesLib(VariablesLib varLib);
+        void BindVariablesLib(VarEnv varLib);
         void UnBindVariablesLib();
     }
 

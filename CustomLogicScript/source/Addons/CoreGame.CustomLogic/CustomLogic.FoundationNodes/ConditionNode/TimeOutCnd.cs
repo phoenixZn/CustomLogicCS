@@ -56,13 +56,13 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         // ICondition
-        public override bool Update(float dt) 
+        public override float Update(float dt) 
         {
             if (mTimeAcc <= mCfg.TimeLimit)
             {
                 mTimeAcc += dt;
             }
-            return true;
+            return dt;
         }
 
         public override bool IsConditionReached()

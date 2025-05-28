@@ -53,7 +53,7 @@ namespace CoreGame.Custom
 
         protected override void OnBegin()
         {
-            mCfg.Code.Execute(m_varLibRef);
+            mCfg.Code.Execute(VarEnvRef);
         }
     }
 }

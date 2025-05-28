@@ -40,9 +40,9 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         //缓存
-        protected static ObjectPool<ICanRecycle> mObjectPool = new ObjectPool<ICanRecycle>();
+        protected ObjectPool<ICanRecycle> mObjectPool = new ObjectPool<ICanRecycle>();
 
-        public static ObjectPool<ICanRecycle> ObjectPool()
+        public ObjectPool<ICanRecycle> ObjectPool()
         {
             return mObjectPool;
         }
@@ -96,13 +96,13 @@ namespace CoreGame.Custom
             context.Logic = customLogic;  //RootNode
             context.TempleteConfigContainer = cfgContainer;
             context.NodeFactory = this;
-            context.Blackboard = genInfo.PreBlackboard ?? new KVBlackBoard();
+            context.VarEnvImp = genInfo.PreEnv ?? new VarEnv();
             customLogic.InitializeNode(config, context);
 
             return customLogic;
         }
 
-        public static void DestroyCustomLogic(CustomLogic cl)
+        public void DestroyCustomLogic(ref CustomLogic cl)
         {
             if (cl != null)
             {
@@ -111,13 +111,22 @@ namespace CoreGame.Custom
             cl = null;
         }
 
-        public static CustomNode CreateCustomNode(ICustomNodeCfg cfg, CustomNodeContext context)
+        public CustomNode CreateCustomNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             //初始化行为
             System.Type nodeType = cfg.NodeType();
             var theNode = ObjectPool().Create<CustomNode>(nodeType);
             theNode.InitializeNode(cfg, context);
             return theNode;
+        }
+        
+        public void DestroyCustomNode(ICustomNode node)
+        {
+            if (node != null)
+            {
+                mObjectPool.Destroy(node);
+            }
+            node = null;
         }
     }
 }

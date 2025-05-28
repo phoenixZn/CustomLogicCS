@@ -23,7 +23,7 @@ namespace CoreGame.Custom
 
         public T GetValue(CustomNode node)
         {
-            VariablesLib varLib = node.VariablesLibRef;
+            VarEnv varLib = node.VarEnvRef;
             if (varLib != null && !string.IsNullOrEmpty(mVarID))
             {
                 if (varLib.ReadVar<T>(mVarID, out var ret))
@@ -42,7 +42,11 @@ namespace CoreGame.Custom
             }
             return ParseByString(str);
         }
-        
+
+        public void SetVarID(string varID)
+        {
+            mVarID = varID;
+        }
     }
 
 

@@ -56,7 +56,7 @@ namespace CoreGame.Custom
             base.InitializeNode(cfg, context);
 
             mCfg = cfg as FTRepeatBhvCfg;
-            mBhv = CustomLogicFactory.CreateCustomNode(mCfg.BhvCfg, context) as FiniteTimeBhv;
+            mBhv = mContext.NodeFactory.CreateCustomNode(mCfg.BhvCfg, context) as FiniteTimeBhv;
             CLHelper.Assert(mBhv != null);
 
             Reset();
@@ -84,7 +84,7 @@ namespace CoreGame.Custom
         {
             base.Destroy();
             mRemainTimes = 0;
-            CustomLogicFactory.ObjectPool().Destroy(mBhv);
+            mContext.NodeFactory.DestroyCustomNode(mBhv);
             mBhv = null;
         }
 
@@ -109,15 +109,15 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         //FiniteTimeBhv
-        public override bool Update(float dt)
+        public override float Update(float dt)
         {
             base.Update(dt);
 
             if (mBhv == null)
-                return true;
+                return dt;
 
             if (mRemainTimes <= 0)
-                return true;
+                return dt;
 
             //尽量保证时间精确，过剩的时间片传入后续的更新
             float dt_overplus = dt;     
@@ -138,7 +138,7 @@ namespace CoreGame.Custom
                 }
             }
 
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

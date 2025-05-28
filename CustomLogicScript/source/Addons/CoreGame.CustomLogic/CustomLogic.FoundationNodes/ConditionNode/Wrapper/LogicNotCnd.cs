@@ -40,27 +40,26 @@ namespace CoreGame.Custom
         {
             base.InitializeNode(cfg, context);
             LogicNotCndCfg cndcfg = (LogicNotCndCfg)cfg;
-            mCnd = CustomLogicFactory.CreateCustomNode(cndcfg.mCndCfg, context) as ICondition;
+            mCnd = mContext.NodeFactory.CreateCustomNode(cndcfg.mCndCfg, context) as ICondition;
         }
 
         public override void Destroy()
         {
             base.Destroy();
-            ICanRecycle icr = mCnd as ICanRecycle;
-            CustomLogicFactory.ObjectPool().Destroy(icr);
+            mContext.NodeFactory.DestroyCustomNode(mCnd as CustomNode);
             mCnd = null;
         }
 
         //////////////////////////////////////////////////////////////////////////
         // ICondition
-        public override bool Update(float dt)
+        public override float Update(float dt)
         {
             var updateCnd = mCnd as INeedUpdate;
             if (updateCnd != null)
             {
                 updateCnd.Update(dt);
             }
-            return true;
+            return dt;
         }
 
         public override bool IsConditionReached()

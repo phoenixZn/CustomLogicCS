@@ -63,7 +63,7 @@ namespace CoreGame.Custom
             for (int i = 0; i < theCfg.SubCfgList.Count; ++i)
             {
                 ICustomNodeCfg bhvCfg = theCfg.SubCfgList[i];
-                FiniteTimeBhv subbhv = CustomLogicFactory.CreateCustomNode(bhvCfg, context) as FiniteTimeBhv;
+                FiniteTimeBhv subbhv = mContext.NodeFactory.CreateCustomNode(bhvCfg, context) as FiniteTimeBhv;
                 if (!CLHelper.Assert(subbhv != null))
                     continue;
                 if (i == 0)
@@ -91,7 +91,7 @@ namespace CoreGame.Custom
             base.Destroy();
             for (int i = 0; i < mBehaviorSeq.Count; ++i)
             {
-                CustomLogicFactory.ObjectPool().Destroy(mBehaviorSeq[i]);
+                mContext.NodeFactory.DestroyCustomNode(mBehaviorSeq[i]);
             }
             mBehaviorSeq.Clear();
         }
@@ -124,13 +124,13 @@ namespace CoreGame.Custom
             return false;
         }
 
-        public override bool Update(float dt)
+        public override float Update(float dt)
         {
             base.Update(dt);
 
             CLHelper.Assert(mBehaviorSeq != null);
             if (mBehaviorSeq == null || mBehaviorSeq.Count == 0)
-                return true;
+                return dt;
 
             //尽量保证时间精确，过剩的时间片传入后续的更新
             float dt_overplus = dt;
@@ -159,7 +159,7 @@ namespace CoreGame.Custom
                 }
             }
 
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

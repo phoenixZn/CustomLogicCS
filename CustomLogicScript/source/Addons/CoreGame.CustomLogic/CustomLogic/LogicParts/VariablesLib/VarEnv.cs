@@ -39,27 +39,28 @@ namespace CoreGame.Custom
         }
     }
 
-    public class VariablesLib : IVariableEnv
+    //Variables Envionment
+    public class VarEnv : IVariableEnv
     {
-        private Dictionary<System.Type, IVariables> m_varTypeDic;
+        private Dictionary<System.Type, IVariables> mVarTypeDic;
 
-        public VariablesLib()
+        public VarEnv()
         {
-            m_varTypeDic = new Dictionary<System.Type, IVariables>();
+            mVarTypeDic = new Dictionary<System.Type, IVariables>();
         }
 
         public void AddVarType<T>(System.Type type)
         {
-            if (!m_varTypeDic.ContainsKey(type))
-                m_varTypeDic.Add(type, new VariablesImp<T>());
+            if (!mVarTypeDic.ContainsKey(type))
+                mVarTypeDic.Add(type, new VariablesImp<T>());
         }
 
         private VariablesImp<T> GetVariables<T>()
         {
             var type = typeof(T);
-            if (m_varTypeDic.ContainsKey(type))
+            if (mVarTypeDic.ContainsKey(type))
             {
-                return m_varTypeDic[type] as VariablesImp<T>;
+                return mVarTypeDic[type] as VariablesImp<T>;
             }
             DSLHelper.LogError("GetVarType<T> == null  " + typeof(T));
             return null;
@@ -83,7 +84,7 @@ namespace CoreGame.Custom
             if (variables == null)
             {
                 variables = new VariablesImp<T>();
-                m_varTypeDic.Add(typeof(T), variables);
+                mVarTypeDic.Add(typeof(T), variables);
             }
             variables.WriteVar(key, value);
         }
@@ -100,7 +101,7 @@ namespace CoreGame.Custom
 
         public void Clear()
         {
-            foreach (var v in m_varTypeDic.Values)
+            foreach (var v in mVarTypeDic.Values)
             {
                 v.Clear();
             }

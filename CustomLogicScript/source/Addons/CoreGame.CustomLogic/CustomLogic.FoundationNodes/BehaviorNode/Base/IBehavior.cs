@@ -14,8 +14,8 @@ namespace CoreGame.Custom
          2、可重复性，可以通过Reset重新开始
          3、有作用性，Bhv运行之后，一般来说它对游戏数据、状态做了什么改变，而是不是相当于什么都没发生（和Condition相反）
     */
-
     public interface IBehavior : INeedUpdate, ICanReset
     {
+    
     }
 }

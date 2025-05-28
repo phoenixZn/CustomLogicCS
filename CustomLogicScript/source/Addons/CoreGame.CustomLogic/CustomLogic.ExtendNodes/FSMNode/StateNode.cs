@@ -47,9 +47,9 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         //INeedUpdate
-        public virtual bool Update(float dt)
+        public virtual float Update(float dt)
         {
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

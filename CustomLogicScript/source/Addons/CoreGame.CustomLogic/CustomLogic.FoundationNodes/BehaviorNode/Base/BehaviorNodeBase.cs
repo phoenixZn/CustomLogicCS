@@ -21,7 +21,7 @@ namespace CoreGame.Custom
             mHasUpdate = false;
         }
 
-        public virtual bool Update(float dt)
+        public virtual float Update(float dt)
         {
             if (!mHasUpdate)
             {
@@ -29,7 +29,7 @@ namespace CoreGame.Custom
                 OnBegin();
             }
             OnUpdate(dt);
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

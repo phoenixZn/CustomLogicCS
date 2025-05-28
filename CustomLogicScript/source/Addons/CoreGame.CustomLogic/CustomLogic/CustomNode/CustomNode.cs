@@ -18,7 +18,7 @@ namespace CoreGame.Custom
     {
         public ICustomLogicGenInfo GenInfo = null;
         public CustomLogic Logic = null;
-        public KVBlackBoard Blackboard = null;
+        public VarEnv VarEnvImp = null;
         //模板配置库（静态配置get），支持通过ID复用一整个配置当模板
         public ILogicConfigContainer TempleteConfigContainer = null;    
         //逻辑节点工厂（运行时逻辑节点get）
@@ -30,41 +30,42 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     public class CustomNode : ICustomNode
     {
-        private bool m_isActive = false;
-        protected VariablesLib m_varLibRef;
+        private bool mIsActive = false;
         protected CustomNodeContext mContext;
         
-        public VariablesLib VariablesLibRef => m_varLibRef;
-        public KVBlackBoard BlackBoardRef => mContext.Blackboard;
-        
+        //运行时变量环境（黑板）
+        public VarEnv VarEnvRef => mContext.VarEnvImp;
+        //运行时初始数据
+        public ICustomLogicGenInfo GenInfo => mContext.GenInfo;
+
         //////////////////////////////////////////////////////////////////////////
         // ICanRecycle
         public virtual void Destroy()
         {
             Deactivate();
-            m_varLibRef = null;
+            mContext = null;
         }
 
         //////////////////////////////////////////////////////////////////////////
         // ICustomNode
         public virtual void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
-            m_varLibRef = context.Logic.VarLib;
+            mContext = context;
             Activate(); 
         }
 
         //Active概念比较纯粹， 只有IsActive的Node才能够响应外部的输入驱动、通知、查询
         public virtual void Activate()
         {
-            m_isActive = true;
+            mIsActive = true;
         }
 
         public virtual void Deactivate()
         {
-            m_isActive = false;
+            mIsActive = false;
         }
 
-        public bool IsActive { get { return m_isActive; } }
+        public bool IsActive { get { return mIsActive; } }
 
         //////////////////////////////////////////////////////////////////////////
         //IInterfaceCollector

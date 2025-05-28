@@ -70,7 +70,7 @@ namespace CoreGame.Custom
             for (int i = 0; i < mCfg.StateList.Count; ++i)
             {
                 ICustomNodeCfg subcndCfg = mCfg.StateList[i];
-                StateNode subcnd = CustomLogicFactory.CreateCustomNode(subcndCfg, context) as StateNode;
+                StateNode subcnd = mContext.NodeFactory.CreateCustomNode(subcndCfg, context) as StateNode;
                 subcnd.Deactivate();
                 mStates.Add(subcnd);
             }
@@ -122,8 +122,7 @@ namespace CoreGame.Custom
             {
                 for (int i = 0; i < mStates.Count; ++i)
                 {
-                    ICanRecycle icr = mStates[i] as ICanRecycle;
-                    CustomLogicFactory.ObjectPool().Destroy(icr);
+                    mContext.NodeFactory.DestroyCustomNode(mStates[i]);
                 }
                 mStates.Clear();
             }
@@ -145,16 +144,16 @@ namespace CoreGame.Custom
 
         ////////////////////////////////////////////////////////////////////////
         //INeedUpdate
-        public virtual bool Update(float dt)
+        public virtual float Update(float dt)
         {
             if (mStates.Count == 0)
-                return true;
+                return dt;
 
             if (mCurrentState == null)
             {
                 mCurrentState = FindState(mDefaultStateID);
                 if (mCurrentState == null)
-                    return true;
+                    return dt;
                 mCurrentState.Enter();
             }
 
@@ -180,7 +179,7 @@ namespace CoreGame.Custom
                 }
             }
 
-            return true;
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////

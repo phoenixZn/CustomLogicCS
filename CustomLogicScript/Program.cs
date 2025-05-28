@@ -14,7 +14,7 @@ namespace CustomLogicScript
 
         static void TestDSL()
         {
-            var varlib = new VariablesLib();
+            var varlib = new VarEnv();
             varlib.AddVarType<int>(typeof(int));
             varlib.AddVarType<float>(typeof(float));
             varlib.AddVarType<FixPoint>(typeof(FixPoint));
