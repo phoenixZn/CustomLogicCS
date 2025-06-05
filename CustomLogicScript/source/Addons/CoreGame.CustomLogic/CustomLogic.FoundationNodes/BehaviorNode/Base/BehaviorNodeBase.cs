@@ -3,14 +3,15 @@ namespace CoreGame.Custom
     public abstract class BehaviorNodeBase : CustomNode, IBehavior
     {
         //需要知道第一次Update的行为
-        private bool mHasUpdate = false;
+        protected bool mHasUpdate = false;
 
         protected virtual void OnBegin()
         {
         }
 
-        protected virtual void OnUpdate(float dt)
+        protected virtual float OnUpdate(float dt)
         {
+            return dt;
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -28,8 +29,7 @@ namespace CoreGame.Custom
                 mHasUpdate = true;
                 OnBegin();
             }
-            OnUpdate(dt);
-            return dt;
+            return OnUpdate(dt);
         }
 
         //////////////////////////////////////////////////////////////////////////

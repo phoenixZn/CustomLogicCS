@@ -53,7 +53,7 @@ namespace CoreGame.Custom
             // };
             // logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo);
             VarEnv varEnv = new VarEnv();
-            varEnv.WriteVar("CV_DelayTime1", 2.65f);
+            varEnv.WriteVar("CV_DelayTime1", 0.65f);
             varEnv.WriteVar("CV_LogInfo1", "LogVar1");
             var genInfo = new ICustomLogicGenInfo()
             {
@@ -61,18 +61,15 @@ namespace CoreGame.Custom
                 ConfigContainerName = "LogicUnitTest",
                 PreEnv = varEnv,
             };
-            logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo, 
-                new CustomLogicCfg(-1, new List<ICustomNodeCfg>() 
-                {
-                    new FTSequenceBhvCfg(new List<ICustomNodeCfg>()
-                    {
-                        new FTDelayBhvCfg(2f),
-                        new FTLogBhvCfg("Test1"),
-                        new FTDelayBhvCfg("CV_DelayTime1"),
-                        new FTLogBhvCfg("Test2"),
-                    }),
-                })
-            );
+            var cfg = new CustomLogicCfg(-1, new List<ICustomNodeCfg>() {
+                new SequenceBhvCfg(new List<ICustomNodeCfg>() { //FTSequenceBhvCfg
+                    new FTDelayBhvCfg(0.2f),
+                    new LogBhvCfg("Test1"),
+                    new FTDelayBhvCfg("CV_DelayTime1"),
+                    new LogBhvCfg("Test2"),
+                }, 3, 3.5f),
+            });
+            logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo, cfg);
         }
 
         public void Update(float dt)
@@ -84,6 +81,7 @@ namespace CoreGame.Custom
 
             if (logic.CanStop())
             {
+                LogWrapper.LogError($"DestroyCustomLogic LogicConfigID={logic.GenInfo.LogicConfigID}");
                 CustomLogicFactory.Instance().DestroyCustomLogic(ref logic);
                 logic = null;
             }

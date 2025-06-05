@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Xml;
 
 /// <summary>
-/// 逻辑节点: ProceedInParallel
+/// 逻辑节点: ParallelBhv
 /// 节点描述: 并行执行所包含的节点
 /// 用例：
-/// <Node type="ProceedInParallel">
+/// <Node type="ParallelBhv">
 ///   <Node type="PlayEffect" PlayOn="Player" EffectID="21" SetEffectName="AttackChain" />
 ///   <Node type="PlayEffect" PlayOn="Enemy" EffectID="22" SetEffectName="Attacked" />
 /// </Node>
@@ -15,17 +15,17 @@ namespace CoreGame.Custom
     //静态配置
     public static partial class NodeConfigTypeRegistry
     {
-        private static bool _ParallelBhvCfg = Register(typeof(ProceedInParallelCfg), NodeCategory.Bhv);
+        private static bool _ParallelBhvCfg = Register(typeof(ParallelBhvCfg), NodeCategory.Bhv);
     }
 
-    //静态配置
-    public class ProceedInParallelCfg : ICustomNodeXmlCfg, IHasSubCfgList
+    //静态配置ProceedInParallelCfg
+    public class ParallelBhvCfg : ICustomNodeXmlCfg, IHasSubCfgList
     {
         public NodeCfgList SubCfgList = new NodeCfgList();
 
         public System.Type NodeType()
         {
-            return typeof(ProceedInParallel);
+            return typeof(ParallelBhv);
         }
 
         public bool ParseFromXml(XmlNode xmlNode)
@@ -42,38 +42,34 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     // 并行执行 行为组包装
     //////////////////////////////////////////////////////////////////////////
-    public class ProceedInParallel : CustomNode, IBehavior, INeedStopCheck
+    public class ParallelBhv : BehaviorNodeBase, INeedStopCheck
     {
-        private ProceedInParallelCfg mCfg;
-        private List<ICustomNode> mNodeList = new List<ICustomNode>();
+        private List<BehaviorNodeBase> mNodeList = new();
 
         public override void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             base.InitializeNode(cfg, context);
-            mCfg = cfg as ProceedInParallelCfg;
             mNodeList.Clear();
 
-            var theCfg = cfg as ProceedInParallelCfg;
+            var theCfg = cfg as ParallelBhvCfg;
             for (int i = 0; i < theCfg.SubCfgList.Count; ++i)
             {
                 ICustomNodeCfg bhvCfg = theCfg.SubCfgList[i];
-                var subbhv = mContext.NodeFactory.CreateCustomNode(bhvCfg, context);
+                var subbhv = mContext.NodeFactory.CreateCustomNode(bhvCfg, context) as BehaviorNodeBase;
                 AddBhv(subbhv);
             }
 
             Reset();
         }
 
-        public void AddBhv(ICustomNode node)
+        public void AddBhv(BehaviorNodeBase node)
         {
-            if (!CLHelper.Assert(node is IBehavior))
+            if (node == null)
             {
-                CLHelper.Assert(false, "Parallel Add bhv == null");
+                this.LogError("ParallelBhv Add bhv == null");
                 return;
             }
-
-            if (node != null)
-                mNodeList.Add(node);
+            mNodeList.Add(node);
         }
 
         public override void Activate()
@@ -104,42 +100,46 @@ namespace CoreGame.Custom
                 }
                 mNodeList.Clear();
             }
+            base.Destroy();
         }
 
         //////////////////////////////////////////////////////////////////////////
         //IBehavior
         public virtual void Reset()
         {
+            base.Reset();
             for (int i = 0; i < mNodeList.Count; ++i)
             {
-                var bhv = mNodeList[i] as IBehavior;
-                bhv.Reset();
+                mNodeList[i].Reset();
             }
-            Activate();
         }
 
-        public float Update(float dt)
+        protected override float OnUpdate(float dt)
         {
             CLHelper.Assert(mNodeList != null);
             if (mNodeList == null)
                 return dt;
 
+            var dt_remain = dt;
             for (int i = 0; i < mNodeList.Count; ++i)
             {
-                var node = mNodeList[i];
-                if (!node.IsActive)
+                var bhv = mNodeList[i];
+                if (!bhv.IsActive)
                     continue;
-
-                var bhv = node as IBehavior;
-                bhv.Update(dt);
-
-                var canStopBhv = node as INeedStopCheck;
+                
+                var sub_dt_remain = bhv.Update(dt);
+                if (sub_dt_remain < dt_remain)
+                {
+                    dt_remain = sub_dt_remain;
+                }
+                
+                var canStopBhv = bhv as INeedStopCheck;
                 if (canStopBhv != null && canStopBhv.CanStop())
                 {
-                    node.Deactivate();
+                    bhv.Deactivate();
                 }
             }
-            return dt;
+            return dt_remain;
         }
 
         //////////////////////////////////////////////////////////////////////////

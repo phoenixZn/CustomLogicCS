@@ -33,6 +33,11 @@ namespace CoreGame.Custom
             int id = cfgNode.GetLogicConfigID();
             LogWrapper.LogError(string.Format("LogicParseError({0}) {1}", id, logMsg));
         }
+        public static void LogError(this CustomNode node, string logMsg)
+        {
+            int id = node.GenInfo.LogicConfigID;
+            LogWrapper.LogError($"LogicError<{id}> : {logMsg}");
+        }
 
         public static bool Assert(this XmlNode cfgNode, bool condition, string logMsg = null)
         {

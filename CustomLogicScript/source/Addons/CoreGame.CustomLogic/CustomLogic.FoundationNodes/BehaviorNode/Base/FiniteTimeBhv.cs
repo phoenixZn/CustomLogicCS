@@ -9,12 +9,12 @@ namespace CoreGame.Custom
     {
         //行为的持续时间
         private float mDuration = 0;
+        private float mCfgDuration = 0;
         private bool mIsEnd = false;
 
         public virtual bool IsDurationEnd()
         {
-            //这里不用 <= 0, 保证会运行一帧
-            return mDuration < 0;         
+            return mDuration <= 0;         
         }   
 
         public float GetDuration() 
@@ -25,8 +25,14 @@ namespace CoreGame.Custom
         }
 
         protected void InitDuration(float duration) 
-        { 
+        {
+            if (duration < 0)
+            {
+                duration = 0;
+            }
             mDuration = duration;
+            mCfgDuration = duration;
+            mIsEnd = false;
         }
 
         protected virtual void OnDurationEnd() { }
@@ -36,18 +42,32 @@ namespace CoreGame.Custom
         public override void Reset()
         {
             base.Reset();
-            mDuration = 0;
+            mDuration = mCfgDuration;
             mIsEnd = false;
         } 
 
         public override float Update(float dt)
         {
+            if (!mHasUpdate)
+            {
+                mHasUpdate = true;
+                OnBegin();
+            }
+
+            var dt_remain = dt;
+            
             if (!IsDurationEnd())
             {
                 if (mDuration > 0 && dt > mDuration)
+                {
                     base.Update(mDuration);
+                    dt_remain = dt - mDuration;
+                }
                 else
+                {
                     base.Update(dt);
+                    dt_remain = 0;
+                }
 
                 mDuration -= dt;
             }
@@ -57,13 +77,14 @@ namespace CoreGame.Custom
                 mIsEnd = true;
                 OnDurationEnd();
             }
-            return dt;
+            return dt_remain;
         }
 
         public override void Destroy()
         {
             base.Destroy();
             mDuration = 0;
+            mCfgDuration = 0;
             mIsEnd = false;
         }
 

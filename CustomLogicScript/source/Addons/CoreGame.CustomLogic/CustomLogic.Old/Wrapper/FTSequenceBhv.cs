@@ -139,7 +139,7 @@ namespace CoreGame.Custom
                 if (i > mBehaviorSeq.Count) //设立极端中断条件，防止死循环
                     break;
 
-                float curDur = mBehaviorSeq[mCurBhvIndex].GetDuration();
+                var curDur = GetCurBhvDuration();
                 mBehaviorSeq[mCurBhvIndex].Update(dt_overplus);
 
                 //下面这个看似多余的判断，是为了防止某个节点内部的逻辑，可能会干坏事Clear整个CustomLogic
@@ -150,7 +150,7 @@ namespace CoreGame.Custom
                 }
 
                 dt_overplus = dt_overplus - curDur;
-                if (mBehaviorSeq[mCurBhvIndex].IsDurationEnd())
+                if (IsCurBhvDurationEnd())
                 {
                     //进行下一个行为
                     DeactivateCurBhv();
@@ -160,6 +160,17 @@ namespace CoreGame.Custom
             }
 
             return dt;
+        }
+
+        private bool IsCurBhvDurationEnd()
+        {
+            return mBehaviorSeq[mCurBhvIndex].IsDurationEnd();
+        }
+
+        private float GetCurBhvDuration()
+        {
+            float curDur = mBehaviorSeq[mCurBhvIndex].GetDuration();
+            return curDur;
         }
 
         //////////////////////////////////////////////////////////////////////////

@@ -68,7 +68,7 @@ namespace CoreGame.Custom
 
         protected override void OnBegin()
         {
-            LogWrapper.LogInfo("FTDelayBhv " + mCfg.TimeLen);
+            LogWrapper.LogInfo($"FTDelayBhv Time={mCfg.TimeLen.GetValue(this)}");
         }
     }
 }
