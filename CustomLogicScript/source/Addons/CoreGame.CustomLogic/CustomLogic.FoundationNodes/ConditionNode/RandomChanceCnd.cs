@@ -9,7 +9,7 @@ namespace CoreGame.Custom
     //静态配置
     public class RandomChanceCndCfg : ICustomNodeXmlCfg
     {
-        public float ProbPercent;   //百分比概率
+        public float ProbPercent { get; protected set; } = 0f;//百分比概率
 
         public System.Type NodeType() { return typeof(RandomChanceCnd); }
 
@@ -41,7 +41,9 @@ namespace CoreGame.Custom
 
         public override void Destroy()
         {
+            base.Destroy();
             mRandNum = 0f;
+            mCfg = null;
         }
 
         //////////////////////////////////////////////////////////////////////////

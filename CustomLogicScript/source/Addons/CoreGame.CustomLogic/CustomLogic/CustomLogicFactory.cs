@@ -126,7 +126,6 @@ namespace CoreGame.Custom
             {
                 mObjectPool.Destroy(node);
             }
-            node = null;
         }
     }
 }

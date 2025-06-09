@@ -9,7 +9,7 @@ namespace CoreGame.Custom
     //静态配置
     public class TimeOutCndCfg : ICustomNodeXmlCfg
     {
-        public System.Type NodeType() { return typeof(TimeOutCnd); }
+        public System.Type NodeType() { return typeof(TimeOut); }
 
         public float TimeLimit;  //定时设置（秒）
 
@@ -28,7 +28,7 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     // 时间条件，超时
     //////////////////////////////////////////////////////////////////////////
-    public class TimeOutCnd : BaseCnd, INeedStopCheck
+    public class TimeOut : ConditionNodeBase, INeedStopCheck, INeedUpdate
     {
         private TimeOutCndCfg mCfg;
         private float mTimeAcc = 0;
@@ -55,8 +55,8 @@ namespace CoreGame.Custom
         }
 
         //////////////////////////////////////////////////////////////////////////
-        // ICondition
-        public override float Update(float dt) 
+        // INeedUpdate
+        public virtual float Update(float dt) 
         {
             if (mTimeAcc <= mCfg.TimeLimit)
             {
@@ -64,7 +64,9 @@ namespace CoreGame.Custom
             }
             return dt;
         }
-
+        
+        //////////////////////////////////////////////////////////////////////////
+        // ICondition
         public override bool IsConditionReached()
         {
             return mTimeAcc > mCfg.TimeLimit;

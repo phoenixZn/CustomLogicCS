@@ -6,18 +6,18 @@ namespace CoreGame.Custom
 {
     public static partial class NodeConfigTypeRegistry
     {
-        private static bool _LoopCndBhvNodeCfg = Register(typeof(LoopCndBhvNodeCfg), NodeCategory.Mixture);
+        private static bool _LoopConditionBranchBhvCfg = Register(typeof(LoopConditionBranchBhvCfg), NodeCategory.Mixture);
     }
 
     //静态配置
-    public class LoopCndBhvNodeCfg : ICustomNodeXmlCfg
+    public class LoopConditionBranchBhvCfg : ICustomNodeXmlCfg
     {
         public ICustomNodeCfg mConditionCfg;   //条件配置
         public ICustomNodeCfg mBehaviorCfg;    //行为配置
 
         public System.Type NodeType()
         {
-            return typeof(LoopCndBhvNode);
+            return typeof(LoopConditionBranchBhv);
         }
 
         public bool ParseFromXml(XmlNode xmlNode)
@@ -35,9 +35,9 @@ namespace CoreGame.Custom
     //////////////////////////////////////////////////////////////////////////
     //  结构容器节点：不停Reset重新执行的 条件+行为 节点
     //////////////////////////////////////////////////////////////////////////
-    public class LoopCndBhvNode : CustomNode, INeedUpdate
+    public class LoopConditionBranchBhv : CustomNode, INeedUpdate
     {
-        public BaseCnd mCondition = null;      //激活条件
+        public ConditionNodeBase mCondition = null;      //激活条件
         public FiniteTimeBhv mBehavior = null;    //附带行为
 
         //////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,9 @@ namespace CoreGame.Custom
         public override void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             base.InitializeNode(cfg, context);
-            CndBhvNodeCfg theCfg = cfg as CndBhvNodeCfg;
-            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context) as BaseCnd;
-            mBehavior = mContext.NodeFactory.CreateCustomNode(theCfg.mBehaviorCfg, context) as FiniteTimeBhv;
+            ConditionBranchBhvCfg theCfg = cfg as ConditionBranchBhvCfg;
+            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context) as ConditionNodeBase;
+            mBehavior = mContext.NodeFactory.CreateCustomNode(theCfg.mTrueBhvCfg, context) as FiniteTimeBhv;
             CLHelper.Assert(mCondition != null);
             CLHelper.Assert(mBehavior != null);
         }
@@ -72,8 +72,14 @@ namespace CoreGame.Custom
         public virtual float Update(float dt)
         {
             if (dt == 0)
+            {
                 return dt;
-            mCondition.Update(dt);
+            }
+
+            if (mCondition is INeedUpdate updateCnd)
+            {
+                updateCnd.Update(dt);
+            }
             //如果条件达成，则行为触发、开始Update
             if (mCondition.IsConditionReached())
             {

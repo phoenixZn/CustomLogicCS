@@ -15,6 +15,10 @@ namespace CoreGame.Custom
     {
         public static ICustomNodeCfg CreateNodeCfg(XmlNode node)
         {
+            if (node == null)
+            {
+                return null;
+            }
             XmlElement cusNode = node as XmlElement;
             if (cusNode == null)
             {

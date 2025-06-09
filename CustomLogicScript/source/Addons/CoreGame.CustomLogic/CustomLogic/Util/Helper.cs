@@ -161,6 +161,18 @@ namespace CoreGame.Custom
             return eleNode.GetAttribute(attrName);
         }
 
+        public static bool GetBool(XmlNode node, string attrName, bool defaultValue = false)
+        {
+            string str = XmlHelper.GetAttribute(node, attrName);
+            if (!string.IsNullOrEmpty(str))
+            {
+                bool.TryParse(str, out var bValue);
+                return bValue;
+            }
+            return defaultValue;
+        }
+
+        
         public static List<int> GetListInt(string str)
         {
             List<int> listInt = new List<int>();

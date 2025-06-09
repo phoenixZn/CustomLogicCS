@@ -43,7 +43,7 @@ namespace CoreGame.Custom
                 isExist = File.Exists(resPath);
             }
 
-            CustomLogicFactory.Instance().InitConfigMng(resPath);
+            //CustomLogicFactory.Instance().InitConfigMng(resPath);
 
             // var genInfo = new ICustomLogicGenInfo()
             // {
@@ -62,6 +62,10 @@ namespace CoreGame.Custom
                 PreEnv = varEnv,
             };
             var cfg = new CustomLogicCfg(-1, new List<ICustomNodeCfg>() {
+                new ConditionBranchBhvCfg(
+                    new SimpleFunctionCndCfg("CoreGame.Custom.SimpleFunctionCnd", "TestInvokeStatic1", 1234), 
+                    new LogBhvCfg("Test ConditionBranchBhvCfg") 
+                    ),
                 new SequenceBhvCfg(new List<ICustomNodeCfg>() { //FTSequenceBhvCfg
                     new FTDelayBhvCfg(0.2f),
                     new LogBhvCfg("Test1"),
