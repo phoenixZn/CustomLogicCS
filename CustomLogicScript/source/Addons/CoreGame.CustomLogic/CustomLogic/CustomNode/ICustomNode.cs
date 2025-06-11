@@ -53,7 +53,7 @@ namespace CoreGame.Custom
     }
 
     //自定义节点
-    public interface ICustomNode : ICanRecycle, IInterfaceCollector
+    public interface ICustomNode : ICanRecycle, IInterfaceCollector, ICanReset
     {
         void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context);
 

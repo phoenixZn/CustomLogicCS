@@ -30,6 +30,7 @@ namespace CoreGame.Custom
         bool CanStop();
     }
 
+    //优化，接口已经固定整合在 CustomNode 中
     public interface ICanReset
     {
         void Reset();

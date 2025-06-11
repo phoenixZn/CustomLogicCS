@@ -5,7 +5,7 @@ namespace CoreGame.Custom
 {
     public static partial class NodeConfigTypeRegistry
     {
-        private static bool _ConditionBranchBhvCfg = Register(typeof(ConditionBranchBhvCfg), NodeCategory.Mixture);
+        private static bool _ConditionBranchBhvCfg = Register(typeof(ConditionBranchBhvCfg), NodeCategory.Bhv);
     }
 
     //静态配置
@@ -21,6 +21,8 @@ namespace CoreGame.Custom
             return typeof(ConditionBranchBhv);
         }
 
+        public ConditionBranchBhvCfg() { }
+
         public ConditionBranchBhvCfg(ICustomNodeCfg cndCfg, ICustomNodeCfg trueCfg = null, ICustomNodeCfg falseCfg = null)
         {
             mConditionCfg = cndCfg;
@@ -34,7 +36,7 @@ namespace CoreGame.Custom
             mTrueBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("TrueBhv"));
             mFalseBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("FalseBhv"));
 
-            if (CLHelper.Assert(mTrueBhvCfg != null || mFalseBhvCfg != null))
+            if (!CLHelper.Assert(mTrueBhvCfg != null || mFalseBhvCfg != null))
             {
                 return false;
             }

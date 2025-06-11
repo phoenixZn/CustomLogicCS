@@ -13,8 +13,8 @@ namespace CoreGame.Custom
                 return false;
             foreach (XmlNode subNode in subNodeList)
             {
-                ICustomNodeCfg bhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
-                this.Add(bhvCfg);
+                ICustomNodeCfg nodeCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
+                this.Add(nodeCfg);
             }
             if (this.Count == 0)
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace CoreGame.Custom
 {
+    //兼容常量、黑板变量 等多种格式化配置方式
     public abstract class FormatValueCfg<T> : IValueConfig<T>
     {
         protected string mVarID = null;
@@ -32,14 +33,19 @@ namespace CoreGame.Custom
             return mDefaultValue;
         }
 
+        //常量解析
         public abstract bool ParseByString(string str);
 
+        //格式化解析
         public bool ParseByFormatString(string str)
         {
+            //判断是否变量
             if (str.StartsWith("BB#"))
             {
                 mVarID = str.Substring(3);
+                return true;
             }
+            //使用常量
             return ParseByString(str);
         }
 

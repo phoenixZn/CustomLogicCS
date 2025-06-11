@@ -13,11 +13,9 @@ namespace CoreGame.Custom
     //静态配置
     public class SequenceBhvCfg : ICustomNodeXmlCfg, IHasSubCfgList
     {
-        private List<ICustomNodeCfg> mSubCfgList = null;
-        public List<ICustomNodeCfg> SubCfgList => mSubCfgList;
-
-        public int LoopCnt { get; private set; } = 1;
-        public float LoopInterval { get; private set; } = 0f; 
+        public List<ICustomNodeCfg> SubCfgList { get; protected set; } = null;
+        public int LoopCnt { get; protected set; } = 1;
+        public float LoopInterval { get; protected set; } = 0f; 
         
         public System.Type NodeType() { return typeof(SequenceBhv); }
 
@@ -25,7 +23,7 @@ namespace CoreGame.Custom
 
         public SequenceBhvCfg(List<ICustomNodeCfg> nodeCfgList, int loopCnt = 1, float loopInterval = 0)
         {
-            mSubCfgList = nodeCfgList;
+            SubCfgList = nodeCfgList;
             LoopCnt = loopCnt;
             LoopInterval = loopInterval;
         }
@@ -44,7 +42,7 @@ namespace CoreGame.Custom
             }
             
             NodeCfgList cfglist = new();
-            mSubCfgList = cfglist;
+            SubCfgList = cfglist;
             return cfglist.ParseFromXml(xmlNode);
         }
         public List<ICustomNodeCfg> GetNodeCfgList() { return SubCfgList; }

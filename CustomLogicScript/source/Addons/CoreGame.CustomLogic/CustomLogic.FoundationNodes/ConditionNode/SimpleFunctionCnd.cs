@@ -28,7 +28,7 @@ namespace CoreGame.Custom
             Parameters = parameters;
         }
 
-        public bool ParseFromXml(XmlNode xmlNode)
+        public override bool ParseFromXml(XmlNode xmlNode)
         {
             var str = XmlHelper.GetAttribute(xmlNode, "ClassName");
             CLHelper.Assert(!string.IsNullOrEmpty(str));
@@ -36,7 +36,8 @@ namespace CoreGame.Custom
             var funcStr = XmlHelper.GetAttribute(xmlNode, "FuncName");
             CLHelper.Assert(!string.IsNullOrEmpty(funcStr));
             FuncName = funcStr;
-            return true;
+            
+            return base.ParseFromXml(xmlNode);
         }
     }
     

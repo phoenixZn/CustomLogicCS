@@ -9,11 +9,18 @@ namespace CoreGame.Custom
     }
 
     //静态配置
-    public class FSMNodeCfg : ICustomNodeXmlCfg
+    public class FSMNodeCfg : ICustomNodeXmlCfg, IHasSubCfgList
     {
-        public List<ICustomNodeCfg> StateList;
-        public int MaxTransitionInOneFrame = 1;  //同一帧内最多能发生多少次状态切换
+        public NodeCfgList StateList { get; protected set; }
 
+        public string DefaultState { get; protected set; } = null;
+        
+        public int MaxTransitionInOneFrame { get; protected set; } = 1;  //同一帧内最多能发生多少次状态切换
+        
+        public NodeCfgList GlobalTransitions = null;   //跳转逻辑（可以不配）
+        
+        public string RecordCurStateIDTo { get; protected set; } = null;    //切换时记录当前状态到黑板
+        
         public virtual System.Type NodeType()
         {
             return typeof(FSMNode);
@@ -21,19 +28,14 @@ namespace CoreGame.Custom
 
         public virtual bool ParseFromXml(XmlNode xmlNode)
         {
-            XmlNodeList subNodeList = xmlNode.SelectNodes("State");
-            if (subNodeList == null)
+            StateList = new NodeCfgList();
+            if (!StateList.ParseFromXml(xmlNode,"State"))
+            {
                 return false;
-
-            StateList = new List<ICustomNodeCfg>();
-            foreach (XmlNode subNode in subNodeList)
-            {
-                ICustomNodeCfg cfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
-                StateList.Add(cfg);
             }
-            if (this.StateList.Count == 0)
+            if (StateList.Count == 0)
             {
-                LogWrapper.LogError("FSMNodeCfg.ParseFromXml() CndCfgList.Count == 0");
+                LogWrapper.LogError("FSMNodeCfg.ParseFromXml() StateList.Count == 0");
                 CLHelper.AssertBreak();
                 return false;
             }
@@ -46,48 +48,160 @@ namespace CoreGame.Custom
                 if (MaxTransitionInOneFrame <= 0)
                     MaxTransitionInOneFrame = 1;
             }
+            
+            var xmlTransitions = xmlNode.SelectSingleNode("GlobalTransitions");
+            if (xmlTransitions != null)
+            {
+                GlobalTransitions = new NodeCfgList();
+                if (!GlobalTransitions.ParseFromXml(xmlTransitions))
+                {
+                    return false;
+                }
+            }
 
+            DefaultState = XmlHelper.GetString(xmlNode, "DefaultState");
+            RecordCurStateIDTo = XmlHelper.GetString(xmlNode, "RecordCurStateIDTo");
             return true;
+        }
+        
+        public List<ICustomNodeCfg> GetNodeCfgList()
+        {
+            return StateList;
         }
     }
 
-    public class FSMNode : CustomNode, INeedUpdate, ICanReset, INeedStopCheck
+    //////////////////////////////////////////////////////////////////////////
+    // 运行时节点: 状态机
+    //////////////////////////////////////////////////////////////////////////
+    public class FSMNode : CustomNode, INeedUpdate, INeedStopCheck
     {
         FSMNodeCfg mCfg;
-        protected List<StateNode> mStates = new List<StateNode>();
-        private int mDefaultStateID = -1;
+        protected Dictionary<string, StateNode> mStates = new();
+        private string mDefaultStateID;
         private StateNode mCurrentState = null;
-
-        //////////////////////////////////////////////////////////////////////////
-        // CustomNode
+        
+        protected List<StateTransitionNode> mTransitions = new();
+        
+        
+        private HashSet<int> mUsedTempLogicSet = new HashSet<int>();
         public override void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             base.InitializeNode(cfg, context);
 
-            mCfg = cfg as FSMNodeCfg;
-
+            var theCfg = cfg as FSMNodeCfg;
+            mDefaultStateID = theCfg.DefaultState;
+            
+            mUsedTempLogicSet.Clear();
+            Inner_InitializeStates(theCfg, context, mUsedTempLogicSet);
+            
             mStates.Clear();
-            for (int i = 0; i < mCfg.StateList.Count; ++i)
+            for (int i = 0; i < theCfg.StateList.Count; ++i)
             {
-                ICustomNodeCfg subcndCfg = mCfg.StateList[i];
-                StateNode subcnd = mContext.NodeFactory.CreateCustomNode(subcndCfg, context) as StateNode;
-                subcnd.Deactivate();
-                mStates.Add(subcnd);
+                StateNode stateNode = mContext.NodeFactory.CreateCustomNode(theCfg.StateList[i], context) as StateNode;
+                stateNode.Deactivate();
+                mStates.Add(stateNode.StateID, stateNode);
             }
 
+            if (theCfg.GlobalTransitions != null)
+            {
+                for (int i = 0; i < theCfg.GlobalTransitions.Count; ++i)
+                {
+                    ICustomNodeCfg bhvCfg = theCfg.GlobalTransitions[i];
+                    var transNode = mContext.NodeFactory.CreateCustomNode(bhvCfg, context) as StateTransitionNode;
+                    if (!CLHelper.Assert(transNode != null))
+                        continue;
+                    mTransitions.Add(transNode);
+                }
+            }
+
+            mCfg = theCfg;
             mCurrentState = null;
             CLHelper.Assert(mStates.Count > 0);
-            mDefaultStateID = mStates[0].StateID;
+            
+        }
+        
+        protected void Inner_InitializeStates(FSMNodeCfg fsmCfg, CustomNodeContext context, HashSet<int> usedTempLogicSet)
+        {
+            for (int i = 0; i < fsmCfg.StateList.Count; i++)
+            {
+                var nodeCfg = fsmCfg.StateList[i];
+                
+                //////////////////////////// 处理模板引用 Begin ////////////////////////////
+                if (nodeCfg is LogicTempleteCfg templeteCfg)
+                {
+                    int templeteID = templeteCfg.LogicID;
+                    if (usedTempLogicSet.Contains(templeteID))
+                    {
+                        this.LogError($"ERROR: 循环引用 FSMNode 模板! templeteID={templeteID}");
+                        continue;
+                    }
+                    usedTempLogicSet.Add(templeteID);
+                    var cfgContainer = context.TempleteConfigContainer;
+                    if (cfgContainer != null)
+                    {
+                        this.LogError($"ERROR: FSMNode 找不到设定模板库！cfgContainer != null, templeteID={templeteID}");
+                        continue;
+                    }
+                    var templeteLogicCfg = cfgContainer.GetCustomLogicCfg(templeteID);
+                    if (templeteLogicCfg != null)
+                    {
+                        //插入模板CustomLogic所配置的各个节点
+                        foreach (var templeteNodeCfg in templeteLogicCfg.NodeCfgList)
+                        {
+                            if (templeteNodeCfg is FSMNodeCfg templeteFsmCfg)
+                            {
+                                Inner_InitializeStates(templeteFsmCfg, context, usedTempLogicSet);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.LogError($"ERROR: FSMNode 找不到模板! templeteID={templeteID}");
+                    }
+                    continue;
+                }
+                ////////////////////////////// 处理模板引用 End ////////////////////////////
+
+                if (nodeCfg is StateNodeCfg stateNodeCfg)
+                {
+                    Inner_CreateStateNode(context, stateNodeCfg);
+                }
+                else
+                {
+                    this.LogError($"Inner_CreateStateNode stateNodeCfg == null, RootLogicID={context.GenInfo.LogicConfigID}, idx={i}");
+                }
+            }
         }
 
+        protected void Inner_CreateStateNode(CustomNodeContext context, StateNodeCfg stateNodeCfg)
+        {
+            var stateNode = mContext.NodeFactory.CreateCustomNode(stateNodeCfg, context) as StateNode;
+            if (stateNode == null)
+            {
+                return;
+            }
+            stateNode.Deactivate();
+            var stateID = stateNode.StateID;
+            if (mStates.TryGetValue(stateID, out var exist_state_node))
+            {
+                mContext.NodeFactory.DestroyCustomNode(exist_state_node);
+                mStates[stateID] = stateNode;
+            }
+        }
+        
+        //////////////////////////////////////////////////////////////////////////
+        // CustomNode
         public override void CollectInterfaceInChildren<T>(ref List<T> interfaceList)
         {
             base.CollectInterfaceInChildren<T>(ref interfaceList);
-            if (mStates == null)
-                return;
-            for (int i = 0; i < mStates.Count; ++i)
+            foreach (var item in mStates)
             {
-                CustomNode.TraverseCollectInterface(ref interfaceList, mStates[i]);
+                TraverseCollectInterface(ref interfaceList, item.Value);
+            }
+            foreach (var transNode in mTransitions)
+            {
+                TraverseCollectInterface(ref interfaceList, transNode);
             }
         }
 
@@ -98,6 +212,10 @@ namespace CoreGame.Custom
             {
                 mCurrentState.Activate();
             }
+            foreach (var transNode in mTransitions)
+            {
+                transNode.Activate();
+            }
         }
 
         public override void Deactivate()
@@ -106,6 +224,10 @@ namespace CoreGame.Custom
             if (mCurrentState != null && mCurrentState.IsActive)
             {
                 mCurrentState.Deactivate();
+            }
+            foreach (var transNode in mTransitions)
+            {
+                transNode.Deactivate();
             }
         }
 
@@ -118,17 +240,20 @@ namespace CoreGame.Custom
                 mCurrentState.Exit();
             }
 
-            if (mStates != null)
+            foreach (var item in mStates)
             {
-                for (int i = 0; i < mStates.Count; ++i)
-                {
-                    mContext.NodeFactory.DestroyCustomNode(mStates[i]);
-                }
-                mStates.Clear();
+                mContext.NodeFactory.DestroyCustomNode(item.Value);
             }
+            mStates.Clear();
 
+            foreach (var transNode in mTransitions)
+            {
+                mContext.NodeFactory.DestroyCustomNode(transNode);
+            }
+            mTransitions.Clear();
+            
             mCurrentState = null;
-            mDefaultStateID = -1;
+            mDefaultStateID = null;
             mCfg = null;
         }
 
@@ -136,10 +261,9 @@ namespace CoreGame.Custom
         //INeedStopCheck
         public virtual bool CanStop()
         {
-            if (mCurrentState == null)
-                return false;
-
-            return mCurrentState.CanStop();
+            if (mStates.Count == 0)
+                return true;
+            return false;
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -151,21 +275,34 @@ namespace CoreGame.Custom
 
             if (mCurrentState == null)
             {
-                mCurrentState = FindState(mDefaultStateID);
-                if (mCurrentState == null)
-                    return dt;
-                mCurrentState.Enter();
+                TransToState(mDefaultStateID);
+                return dt;
             }
 
+            //先检查全局的Transitions
+            foreach (var transNode in mTransitions)
+            {
+                var transGoalStateID = transNode.CheckTransitions();
+                if (transGoalStateID != null)
+                {
+                    if (mCurrentState.StateID != transGoalStateID)
+                    {
+                        TransToState(transGoalStateID);
+                    }
+                }
+            }
+
+            if (mCurrentState == null)
+            {
+                return dt;
+            }
+            
             //支持一帧内连续切换 MaxTransitionInOneFrame 个状态
             for (int i = 0; i < mCfg.MaxTransitionInOneFrame; i++)
             {
-                mCurrentState.Update(dt);
-
                 //检查状态转移
-                int oldStateID = mCurrentState.StateID;
+                var oldStateID = mCurrentState.StateID;
                 var goalStateID = mCurrentState.CheckTransitions();
-
                 if (goalStateID == oldStateID)
                 {
                     break; //如果没有状态转移
@@ -179,7 +316,7 @@ namespace CoreGame.Custom
                 }
             }
 
-            return dt;
+            return mCurrentState.Update(dt);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -188,41 +325,56 @@ namespace CoreGame.Custom
             get { return mCurrentState; }
         }
 
-        public int CurrentStateType
+        public string CurrentStateID
         {
             get
             {
                 if (mCurrentState == null)
-                    return 0;
+                    return null;
                 return mCurrentState.StateID;
+            }
+        }
+        
+        public void TransToState(string goalStateID)
+        {
+            if (goalStateID == null)
+                return;
+            var goalState = FindState(mDefaultStateID);
+            if (goalState == null)
+            {
+                this.LogError($"FSMNode:FN_TransToState mGoalState == null  goalStateID={goalStateID}");
+                return;
+            }
+            mCurrentState?.Exit();
+            
+            mCurrentState = goalState;
+            mCurrentState.Enter();
+            
+            //记录当前状态到黑板
+            if (string.IsNullOrEmpty(mCfg.RecordCurStateIDTo))
+            {
+                SetVar(mCfg.RecordCurStateIDTo, goalStateID);
             }
         }
 
         //////////////////////////////////////////////////////////////////////////
         // Init
-        public FSMNode AddState(StateNode state)
+        private StateNode FindState(string stateID)
         {
-            mStates.Add(state);
-            return this;
-        }
-
-        private StateNode FindState(int stateID)
-        {
-            if (mStates.Count == 0)
-                return null;
-
-            for (int i = 0; i < mStates.Count; i++)
+            if (mStates.TryGetValue(stateID, out var state))
             {
-                if (mStates[i].StateID == stateID)
-                {
-                    return mStates[i];
-                }
+                return state;
             }
             return null;
         }
 
-        public virtual void Reset()
+        public override void Reset()
         {
+            foreach (var transNode in mTransitions)
+            {
+                transNode.Reset();
+            }
+            
             if (mCurrentState != null)
                 mCurrentState.Exit();
 

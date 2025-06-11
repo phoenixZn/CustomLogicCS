@@ -43,7 +43,7 @@ namespace CoreGame.Custom
                 isExist = File.Exists(resPath);
             }
 
-            //CustomLogicFactory.Instance().InitConfigMng(resPath);
+            CustomLogicFactory.Instance().InitConfigMng(resPath);
 
             // var genInfo = new ICustomLogicGenInfo()
             // {
@@ -52,6 +52,7 @@ namespace CoreGame.Custom
             //     PreBlackboard = null,
             // };
             // logic = CustomLogicFactory.Instance().CreateCustomLogic(genInfo);
+            
             VarEnv varEnv = new VarEnv();
             varEnv.WriteVar("CV_DelayTime1", 0.65f);
             varEnv.WriteVar("CV_LogInfo1", "LogVar1");

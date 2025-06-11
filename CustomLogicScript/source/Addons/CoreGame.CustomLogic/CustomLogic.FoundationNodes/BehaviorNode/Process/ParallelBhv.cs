@@ -105,7 +105,7 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         //IBehavior
-        public virtual void Reset()
+        public override void Reset()
         {
             base.Reset();
             for (int i = 0; i < mNodeList.Count; ++i)

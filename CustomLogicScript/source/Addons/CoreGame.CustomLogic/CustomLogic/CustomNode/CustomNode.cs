@@ -66,6 +66,12 @@ namespace CoreGame.Custom
         }
 
         public bool IsActive { get { return mIsActive; } }
+        
+        //Reset的设计语义是：节点内部状态恢复到InitializeNode之后的样子（主要用于可以重复多次执行的Node）
+        public virtual void Reset()
+        {
+        }
+
 
         //////////////////////////////////////////////////////////////////////////
         //IInterfaceCollector
@@ -99,6 +105,20 @@ namespace CoreGame.Custom
             }
             node.CollectInterface<T>(ref interfaceList);
             node.CollectInterfaceInChildren<T>(ref interfaceList);
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// This
+        protected void SetVar<T>(string key, T value)
+        {
+            VarEnvRef.WriteVar(key, value);
+        }
+
+        protected T GetVar<T>(string key)
+        {
+            if (VarEnvRef.ReadVar<T>(key, out var value))
+                return value;
+            return default;
         }
     }
 }

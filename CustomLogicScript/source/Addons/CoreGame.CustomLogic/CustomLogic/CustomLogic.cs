@@ -93,19 +93,24 @@ namespace CoreGame.Custom
         //////////////////////////////////////////////////////////////////////////
         // ICustomNode
 
-        private HashSet<int> usedTempLogicSet = new HashSet<int>();
+        private HashSet<int> mUsedTempLogicSet = new();
         public override void InitializeNode(ICustomNodeCfg cfg, CustomNodeContext context)
         {
             base.InitializeNode(cfg, context);
             
             var logicCfg = cfg as CustomLogicCfg;
-            usedTempLogicSet.Clear();
+            mUsedTempLogicSet.Clear();
 
-            _InitializeNodes(logicCfg, context, usedTempLogicSet);
+            Inner_InitializeNodes(logicCfg, context, mUsedTempLogicSet);
         }
 
-        private void _InitializeNodes(CustomLogicCfg logicCfg, CustomNodeContext context, HashSet<int> usedTempLogicSet)
+        private void Inner_InitializeNodes(CustomLogicCfg logicCfg, CustomNodeContext context, HashSet<int> usedTempLogicSet)
         {
+            if (logicCfg == null)
+            {
+                this.LogError($"_InitializeNodes logicCfg == null");
+                return;
+            }
             //装配节点
             for (int i = 0; i < logicCfg.NodeCfgList.Count; i++)
             {
@@ -133,7 +138,7 @@ namespace CoreGame.Custom
                         if (templeteLogicCfg != null)
                         {
                             //插入模板CustomLogic所配置的各个节点
-                            _InitializeNodes(templeteLogicCfg, context, usedTempLogicSet);
+                            Inner_InitializeNodes(templeteLogicCfg, context, usedTempLogicSet);
                         }
                         else
                         {
@@ -156,6 +161,7 @@ namespace CoreGame.Custom
 
         public override void Destroy()
         {
+            mUsedTempLogicSet.Clear();
             //节点
             for (int i = 0; i < mNodes.Count; ++i)
             {
@@ -169,17 +175,12 @@ namespace CoreGame.Custom
 
             base.Destroy();
         }
-
-        public override void CollectInterface<T>(ref List<T> interfaceList)
-        {
-            base.CollectInterface(ref interfaceList);
-        }
-
+        
         public override void CollectInterfaceInChildren<T>(ref List<T> interfaceList)
         {
             for (int i = 0; i < mNodes.Count; ++i)
             {
-                CustomNode.TraverseCollectInterface(ref interfaceList, mNodes[i]);
+                TraverseCollectInterface(ref interfaceList, mNodes[i]);
             }
         }
 

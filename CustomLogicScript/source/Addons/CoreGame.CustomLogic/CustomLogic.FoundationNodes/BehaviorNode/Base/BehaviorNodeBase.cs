@@ -1,6 +1,6 @@
 namespace CoreGame.Custom
 {
-    public abstract class BehaviorNodeBase : CustomNode, IBehavior
+    public abstract class BehaviorNodeBase : CustomNode, INeedUpdate//IBehavior
     {
         //需要知道第一次Update的行为
         protected bool mHasUpdate = false;
@@ -9,6 +9,7 @@ namespace CoreGame.Custom
         {
         }
 
+        //返回消耗后剩余的时间片
         protected virtual float OnUpdate(float dt)
         {
             return dt;
@@ -16,7 +17,7 @@ namespace CoreGame.Custom
 
         //////////////////////////////////////////////////////////////////////////
         // IBehavior
-        public virtual void Reset()
+        public override void Reset()
         {
             //运行前，内部状态的初始化放在这里。（主要用于可以重复多次执行的Behavior）
             mHasUpdate = false;

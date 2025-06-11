@@ -10,7 +10,7 @@ namespace CoreGame.Custom
         
         public abstract System.Type NodeType();
 
-        public bool ParseFromXml(XmlNode node)
+        public virtual bool ParseFromXml(XmlNode node)
         {
             UseUnaryOperationNOT = XmlHelper.GetBool(node, "UseUnaryNOT");
             UseFixedResult = XmlHelper.GetBool(node, "UseFixedResult");
@@ -19,7 +19,7 @@ namespace CoreGame.Custom
     }
     
     
-    public abstract class ConditionNodeBase : CustomNode, ICondition, ICanReset
+    public abstract class ConditionNodeBase : CustomNode, ICondition
     {
         //是否对条件结果取反
         protected bool mUseUnaryOperationNOT = false;
@@ -68,7 +68,7 @@ namespace CoreGame.Custom
             return res;
         }
         
-        public virtual void Reset()
+        public override void Reset()
         {
             mFixedResult = null;
         }

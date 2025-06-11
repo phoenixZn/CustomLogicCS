@@ -171,7 +171,38 @@ namespace CoreGame.Custom
             }
             return defaultValue;
         }
-
+        
+        public static float GetFloat(XmlNode node, string attrName, float defaultValue = 0f)
+        {
+            string str = XmlHelper.GetAttribute(node, attrName);
+            if (!string.IsNullOrEmpty(str))
+            {
+                float.TryParse(str, out var fValue);
+                return fValue;
+            }
+            return defaultValue;
+        }
+        
+        public static int GetInt(XmlNode node, string attrName, int defaultValue = 0)
+        {
+            string str = XmlHelper.GetAttribute(node, attrName);
+            if (!string.IsNullOrEmpty(str))
+            {
+                int.TryParse(str, out var iValue);
+                return iValue;
+            }
+            return defaultValue;
+        }
+        
+        public static string GetString(XmlNode node, string attrName, string defaultValue = null)
+        {
+            string str = XmlHelper.GetAttribute(node, attrName);
+            if (str == null)
+            {
+                return defaultValue;
+            }
+            return str;
+        }
         
         public static List<int> GetListInt(string str)
         {
