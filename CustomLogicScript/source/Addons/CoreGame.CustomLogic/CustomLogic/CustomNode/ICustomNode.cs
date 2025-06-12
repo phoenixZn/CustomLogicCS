@@ -22,7 +22,7 @@ namespace CoreGame.Custom
             XmlElement cusNode = node as XmlElement;
             if (cusNode == null)
             {
-                CLHelper.Assert(false, "CustomLogicConfig PraseNodeCfg ParseError  cusNode == null");
+                CLHelper.Assert(false, "CustomLogicConfig PraseNodeCfg ParseError  cusNode as XmlElement == null");
                 return null;
             }
 

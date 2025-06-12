@@ -46,8 +46,8 @@ namespace CoreGame.Custom
         {
             base.InitializeNode(cfg, context);
             ConditionBranchBhvCfg theCfg = cfg as ConditionBranchBhvCfg;
-            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context) as ConditionNodeBase;
-            mBehavior = mContext.NodeFactory.CreateCustomNode(theCfg.mTrueBhvCfg, context) as FiniteTimeBhv;
+            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.CndCfg, context) as ConditionNodeBase;
+            mBehavior = mContext.NodeFactory.CreateCustomNode(theCfg.TrueBhvCfg, context) as FiniteTimeBhv;
             CLHelper.Assert(mCondition != null);
             CLHelper.Assert(mBehavior != null);
         }

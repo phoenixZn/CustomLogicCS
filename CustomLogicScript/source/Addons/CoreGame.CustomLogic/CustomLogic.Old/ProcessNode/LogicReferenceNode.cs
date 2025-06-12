@@ -50,7 +50,8 @@ namespace CoreGame.Custom
             newContext.GenInfo = context.GenInfo;
             newContext.Logic = logic;    //独立的黑板
             newContext.TempleteConfigContainer = context.TempleteConfigContainer;
-
+            newContext.VarEnvImp = new VarEnv();
+            
             cfg = newCfg;
             context = newContext;
         }

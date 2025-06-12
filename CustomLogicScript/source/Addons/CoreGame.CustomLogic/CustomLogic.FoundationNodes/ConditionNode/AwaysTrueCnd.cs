@@ -8,19 +8,19 @@ namespace CoreGame.Custom
         static bool _AwaysTrueCndCfg = Register(typeof(AwaysTrueCndCfg), NodeCategory.Cnd);
     }
 
-    public class AwaysTrueCndCfg : ICustomNodeXmlCfg
+    public class AwaysTrueCndCfg : ConditionBaseCfg
     {
-        public System.Type NodeType() { return typeof(AwaysTrueCnd); }
+        public override System.Type NodeType() { return typeof(AwaysTrueCnd); }
 
-        public bool ParseFromXml(XmlNode cndNode)
+        public override bool ParseFromXml(XmlNode cndNode)
         {
-            return true;
+            return base.ParseFromXml(cndNode);
         }
     }
 
-    public class AwaysTrueCnd : CustomNode, ICondition
+    public class AwaysTrueCnd : ConditionNodeBase
     {
-        public bool IsConditionReached()
+        protected override bool Inner_ConditionCheck()
         {
             return true;
         }

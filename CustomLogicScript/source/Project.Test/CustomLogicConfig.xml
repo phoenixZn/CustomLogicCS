@@ -21,9 +21,10 @@
     <ConfigItem type="CustomLogic">
         <ID>10000</ID>
         <Tips>测试0</Tips>
+        <Node type="LogBhv" LogStr="测试 ConditionBranchBhv 节点"/>
         <Node type="ConditionBranchBhv">
-            <Condition type="TimeOutCnd" time="30"/>
-            <TrueBhv type="FTDelayBhv" TimeLen="3.25"/>
+            <Condition type="TimeOutCnd" time="2.6"/>
+            <TrueBhv type="LogBhv" LogStr="ConditionBranchBhv TrueBhv 调用"/>
         </Node>
     </ConfigItem>
     
@@ -31,43 +32,64 @@
         <ID>10001</ID>
         <Tips>测试1</Tips>
         <Node type="ConditionBranchBhv">
-            <Condition type="TimeOutCnd" time="30"/>
-            <TrueBhv type="FTDelayBhv" TimeLen="3.25"/>
+            <Condition type="TimeOutCnd" time="4"/>
+            <TrueBhv type="LogBhv" LogStr="10001 ConditionBranchBhv TrueBhv"/>
         </Node>
-        <Node type="FTDelayBhv" TimeLen="5.25"/>
-        <Node type="SequenceBhv">
-            <Node type="FTDelayBhv" TimeLen="10"/>
-            <Node type="LogBhv" LogStr="haha -1"/>
-            <Node type="FTDelayBhv" TimeLen="10"/>
-            <Node type="LogBhv" LogStr="haha -2"/>
-        </Node>
-        <Node type="SequenceBhv" LoopCnt="3">
-            <Node type="LogBhv" LogStr="Repeat +1"/>
-            <Node type="FTDelayBhv" TimeLen="2"/>
+        <Node type="ParallelBhv">
+            <Node type="LogBhv" LogStr="10001 ParallelBhv Begin"/>
+            <Node type="SequenceBhv" LoopCnt="3">
+                <Node type="LogBhv" LogStr="并行的 Seq2"/>
+                <Node type="FTDelayBhv" TimeLen="3"/>
+            </Node>
         </Node>
 	</ConfigItem>
 
     <ConfigItem type="CustomLogic">
+        <ID>70001</ID>
+        <Tips>测试1</Tips>
+        <Node type="ConditionBranchBhv">
+            <Condition type="TimeOutCnd" time="4"/>
+            <TrueBhv type="LogBhv" LogStr="10001 ConditionBranchBhv TrueBhv"/>
+        </Node>
+        <Node type="ParallelBhv">
+            <Node type="LogBhv" LogStr="10001 ParallelBhv Begin"/>
+            <Node type="SequenceBhv" LoopCnt="4" LoopInterval="2">
+                <Node type="LogBhv" LogStr="并行的 Seq1"/>
+            </Node>
+            <Node type="SequenceBhv" LoopCnt="3">
+                <Node type="LogBhv" LogStr="并行的 Seq2"/>
+                <Node type="FTDelayBhv" TimeLen="3"/>
+            </Node>
+        </Node>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
         <ID>10002</ID>
         <Tips>测试2</Tips>
+        <Node type="LogBhv" LogStr="10002 Begin"/>
         <Node type="SequenceBhv">
             <Node type="FTDelayBhv" TimeLen="3"/>
-            <Node type="LogBhv" LogStr="10002 -1"/>
+            <Node type="LogBhv" LogStr="10002 Seq Action 1"/>
             <Node type="FTDelayBhv" TimeLen="3"/>
-            <Node type="LogBhv" LogStr="10002 -2"/>
+            <Node type="LogBhv" LogStr="10002 Seq Action 2"/>
         </Node>
     </ConfigItem>
 
     <ConfigItem type="CustomLogic">
         <ID>10003</ID>
         <Tips>测试3</Tips>
-        <Node type="LogicTemplete" LogicID="10001"/>
-        <Node type="ParallelBhv">
-        <Node type="LogBhv" LogStr="10003 1"/>
-        <Node type="SequenceBhv" LoopCnt="4">
-            <Node type="LogBhv" LogStr="10003 2"/>
-            <Node type="FTDelayBhv" TimeLen="2"/>
-        </Node>
+        <Node type="LogBhv" LogStr="10003 Action 1"/>
+        <Node type="LogicTemplete" LogicID="10002"/>
+        <Node type="LogBhv" LogStr="10003 Action 2"/>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+        <ID>10004</ID>
+        <Tips>测试4</Tips>
+        <Node type="LogBhv" LogStr="10004 Begin"/>
+        <Node type="SequenceBhv">
+            <Node type="LogBhv" LogStr="10004 Log"/>
+            <Node type="FTDelayBhv" TimeLen="1"/>
         </Node>
     </ConfigItem>
 
@@ -87,15 +109,7 @@
         <Node type="LogBhv" LogStr="模板引用3"/>
     </ConfigItem>
     
-    <ConfigItem type="CustomLogic">
-        <ID>10004</ID>
-        <Tips>测试4</Tips>
-        <Node type="LogicReference" LogicID="10002"/>
-        <Node type="SequenceBhv">
-            <Node type="LogBhv" LogStr="10004 Log"/>
-            <Node type="FTDelayBhv" TimeLen="1"/>
-        </Node>
-    </ConfigItem>
+
 		
 	</CustomLogicConfig>
 </ConfigSystem>

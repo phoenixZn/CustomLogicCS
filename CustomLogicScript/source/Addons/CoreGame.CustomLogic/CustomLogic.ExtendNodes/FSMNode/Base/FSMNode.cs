@@ -137,7 +137,7 @@ namespace CoreGame.Custom
                     }
                     usedTempLogicSet.Add(templeteID);
                     var cfgContainer = context.TempleteConfigContainer;
-                    if (cfgContainer != null)
+                    if (cfgContainer == null)
                     {
                         this.LogError($"ERROR: FSMNode 找不到设定模板库！cfgContainer != null, templeteID={templeteID}");
                         continue;

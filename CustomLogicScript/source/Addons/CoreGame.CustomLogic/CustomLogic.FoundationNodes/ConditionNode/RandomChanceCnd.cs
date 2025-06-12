@@ -7,25 +7,25 @@ namespace CoreGame.Custom
         static bool _RandomChanceCndCfg = Register(typeof(RandomChanceCndCfg), NodeCategory.Cnd);
     }
     //静态配置
-    public class RandomChanceCndCfg : ICustomNodeXmlCfg
+    public class RandomChanceCndCfg : ConditionBaseCfg
     {
         public float ProbPercent { get; protected set; } = 0f;//百分比概率
 
-        public System.Type NodeType() { return typeof(RandomChanceCnd); }
+        public override System.Type NodeType() { return typeof(RandomChanceCnd); }
 
-        public bool ParseFromXml(XmlNode cndNode)
+        public override bool ParseFromXml(XmlNode cndNode)
         {
             string str = XmlHelper.GetAttribute(cndNode, "ProbPercent");
             CLHelper.Assert(!string.IsNullOrEmpty(str));
             ProbPercent = float.Parse(str);
-            return true;
+            return base.ParseFromXml(cndNode);
         }
     }
 
     //////////////////////////////////////////////////////////////////////////
     // 随机概率条件
     //////////////////////////////////////////////////////////////////////////
-    public class RandomChanceCnd : CustomNode, ICondition
+    public class RandomChanceCnd : ConditionNodeBase
     {
         private RandomChanceCndCfg mCfg;
         private float mRandNum;
@@ -47,8 +47,8 @@ namespace CoreGame.Custom
         }
 
         //////////////////////////////////////////////////////////////////////////
-        // ICondition
-        public bool IsConditionReached()
+        // ConditionNodeBase
+        protected override bool Inner_ConditionCheck()
         {
             return mRandNum < mCfg.ProbPercent;
         }

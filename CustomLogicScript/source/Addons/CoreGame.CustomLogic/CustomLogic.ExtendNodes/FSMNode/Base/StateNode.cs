@@ -87,6 +87,18 @@ namespace CoreGame.Custom
             }
             mTransitions.Clear();
         }
+        
+        public override void CollectInterfaceInChildren<T>(ref List<T> interfaceList)
+        {
+            base.CollectInterfaceInChildren<T>(ref interfaceList);
+            
+            if (mTransitions == null)
+                return;
+            for (int i = 0; i < mTransitions.Count; ++i)
+            {
+                TraverseCollectInterface(ref interfaceList, mTransitions[i]);
+            }
+        }
 
         //////////////////////////////////////////////////////////////////////////
         //INeedUpdate
@@ -138,18 +150,5 @@ namespace CoreGame.Custom
             return mDefaultNextStateID;
         }
         
-        //////////////////////////////////////////////////////////////////////////
-        //ICustomNode
-        public override void CollectInterfaceInChildren<T>(ref List<T> interfaceList)
-        {
-            base.CollectInterfaceInChildren<T>(ref interfaceList);
-            
-            if (mTransitions == null)
-                return;
-            for (int i = 0; i < mTransitions.Count; ++i)
-            {
-                TraverseCollectInterface(ref interfaceList, mTransitions[i]);
-            }
-        }
     }
 }

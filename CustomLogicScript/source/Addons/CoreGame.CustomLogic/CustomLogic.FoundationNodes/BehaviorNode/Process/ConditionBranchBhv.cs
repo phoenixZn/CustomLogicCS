@@ -11,9 +11,9 @@ namespace CoreGame.Custom
     //静态配置
     public class ConditionBranchBhvCfg : ICustomNodeXmlCfg
     {
-        public ICustomNodeCfg mConditionCfg { get; protected set; }   //判断条件配置
-        public ICustomNodeCfg mTrueBhvCfg { get; protected set; }    //条件达成行为配置
-        public ICustomNodeCfg mFalseBhvCfg { get; protected set; }   //条件不达成行为配置
+        public ICustomNodeCfg CndCfg { get; protected set; }   //判断条件配置
+        public ICustomNodeCfg TrueBhvCfg { get; protected set; }    //条件达成行为配置
+        public ICustomNodeCfg FalseBhvCfg { get; protected set; }   //条件不达成行为配置
         public bool CheckOnTick { get; protected set; } = false;
 
         public System.Type NodeType()
@@ -25,33 +25,33 @@ namespace CoreGame.Custom
 
         public ConditionBranchBhvCfg(ICustomNodeCfg cndCfg, ICustomNodeCfg trueCfg = null, ICustomNodeCfg falseCfg = null)
         {
-            mConditionCfg = cndCfg;
-            mTrueBhvCfg = trueCfg;
-            mFalseBhvCfg = falseCfg;
+            CndCfg = cndCfg;
+            TrueBhvCfg = trueCfg;
+            FalseBhvCfg = falseCfg;
         }
 
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            mConditionCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("Condition"));
-            mTrueBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("TrueBhv"));
-            mFalseBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("FalseBhv"));
+            CndCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("Condition"));
+            TrueBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("TrueBhv"));
+            FalseBhvCfg = ICustomNodeXmlCfg.CreateNodeCfg(xmlNode.SelectSingleNode("FalseBhv"));
 
-            if (!CLHelper.Assert(mTrueBhvCfg != null || mFalseBhvCfg != null))
+            if (!CLHelper.Assert(TrueBhvCfg != null || FalseBhvCfg != null))
             {
                 return false;
             }
             
-            var categoryCnd = NodeConfigTypeRegistry.GetNodeCfgCategory(mConditionCfg.GetType());
+            var categoryCnd = NodeConfigTypeRegistry.GetNodeCfgCategory(CndCfg.GetType());
             CLHelper.Assert(categoryCnd == NodeCategory.Cnd);
             
-            if (mTrueBhvCfg != null)
+            if (TrueBhvCfg != null)
             {
-                var categoryBhv1 = NodeConfigTypeRegistry.GetNodeCfgCategory(mTrueBhvCfg.GetType());
+                var categoryBhv1 = NodeConfigTypeRegistry.GetNodeCfgCategory(TrueBhvCfg.GetType());
                 CLHelper.Assert(categoryBhv1 == NodeCategory.Bhv);
             }
-            if (mFalseBhvCfg != null)
+            if (FalseBhvCfg != null)
             {
-                var categoryBhv2 = NodeConfigTypeRegistry.GetNodeCfgCategory(mFalseBhvCfg.GetType());
+                var categoryBhv2 = NodeConfigTypeRegistry.GetNodeCfgCategory(FalseBhvCfg.GetType());
                 CLHelper.Assert(categoryBhv2 == NodeCategory.Bhv);
             }
             
@@ -62,7 +62,7 @@ namespace CoreGame.Custom
     }
 
     //////////////////////////////////////////////////////////////////////////
-    //  结构容器节点：条件 + 行为
+    //  按条件触发的行为节点：条件 + 行为
     //////////////////////////////////////////////////////////////////////////
     public class ConditionBranchBhv : BehaviorNodeBase, INeedStopCheck
     {
@@ -80,17 +80,17 @@ namespace CoreGame.Custom
             base.InitializeNode(cfg, context);
             ConditionBranchBhvCfg theCfg = cfg as ConditionBranchBhvCfg;
 
-            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.mConditionCfg, context) as ConditionNodeBase;
+            mCondition = mContext.NodeFactory.CreateCustomNode(theCfg.CndCfg, context) as ConditionNodeBase;
             
             //行为一开始处于非激活状态
-            if (theCfg.mTrueBhvCfg != null)
+            if (theCfg.TrueBhvCfg != null)
             {
-                mTrueBhv = mContext.NodeFactory.CreateCustomNode(theCfg.mTrueBhvCfg, context) as BehaviorNodeBase;
+                mTrueBhv = mContext.NodeFactory.CreateCustomNode(theCfg.TrueBhvCfg, context) as BehaviorNodeBase;
                 mTrueBhv.Deactivate();  
             }
-            if (theCfg.mFalseBhvCfg != null)
+            if (theCfg.FalseBhvCfg != null)
             {
-                mFalseBhv = mContext.NodeFactory.CreateCustomNode(theCfg.mFalseBhvCfg, context) as BehaviorNodeBase;
+                mFalseBhv = mContext.NodeFactory.CreateCustomNode(theCfg.FalseBhvCfg, context) as BehaviorNodeBase;
                 mFalseBhv.Deactivate();  
             }
             
@@ -99,6 +99,10 @@ namespace CoreGame.Custom
 
             mIsConditionReached = null;
             mCheckOnTick = theCfg.CheckOnTick;
+            if (mCondition is INeedUpdate)
+            {
+                mCheckOnTick = true;
+            }
         }
 
         public override void Destroy()
@@ -175,11 +179,14 @@ namespace CoreGame.Custom
         
         protected override float OnUpdate(float dt)
         {
+            if (mCondition is INeedUpdate updateCnd)
+            {
+                updateCnd.Update(dt);
+            }
             if (mCheckOnTick)
             {
                 Inner_CheckConditionReached();
             }
-            
             if (mIsConditionReached == true)
             {
                 if (mTrueBhv != null)
@@ -189,7 +196,7 @@ namespace CoreGame.Custom
             }
             else
             {
-                if (mTrueBhv != null)
+                if (mFalseBhv != null)
                 {
                     dt = mFalseBhv.Update(dt);    
                 }

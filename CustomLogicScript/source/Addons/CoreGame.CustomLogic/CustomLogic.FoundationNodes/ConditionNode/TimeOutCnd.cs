@@ -7,20 +7,20 @@ namespace CoreGame.Custom
         static bool _TimeOutCndCfg = Register(typeof(TimeOutCndCfg), NodeCategory.Cnd);
     }
     //静态配置
-    public class TimeOutCndCfg : ICustomNodeXmlCfg
+    public class TimeOutCndCfg : ConditionBaseCfg
     {
-        public System.Type NodeType() { return typeof(TimeOutCnd); }
+        public override System.Type NodeType() { return typeof(TimeOutCnd); }
 
         public float TimeLimit;  //定时设置（秒）
 
-        public bool ParseFromXml(XmlNode cndNode)
+        public override bool ParseFromXml(XmlNode cndNode)
         {
             string time = XmlHelper.GetAttribute(cndNode, "time");
             if (CLHelper.Assert(!string.IsNullOrEmpty(time)))
             {
                 float.TryParse(time, out TimeLimit);
             }
-            return true;
+            return base.ParseFromXml(cndNode);
         }
 
     }
@@ -66,8 +66,8 @@ namespace CoreGame.Custom
         }
         
         //////////////////////////////////////////////////////////////////////////
-        // ICondition
-        public override bool IsConditionReached()
+        // ConditionNodeBase
+        protected override bool Inner_ConditionCheck()
         {
             return mTimeAcc > mCfg.TimeLimit;
         }

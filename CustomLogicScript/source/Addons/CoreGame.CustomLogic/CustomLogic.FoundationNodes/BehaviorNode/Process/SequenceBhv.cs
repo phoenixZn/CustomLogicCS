@@ -21,7 +21,7 @@ namespace CoreGame.Custom
 
         public SequenceBhvCfg(){}
 
-        public SequenceBhvCfg(List<ICustomNodeCfg> nodeCfgList, int loopCnt = 1, float loopInterval = 0)
+        public SequenceBhvCfg(List<ICustomNodeCfg> nodeCfgList, int loopCnt = 1, float loopInterval = 0f)
         {
             SubCfgList = nodeCfgList;
             LoopCnt = loopCnt;
@@ -30,16 +30,8 @@ namespace CoreGame.Custom
         
         public bool ParseFromXml(XmlNode xmlNode)
         {
-            string strLoopCnt = XmlHelper.GetAttribute(xmlNode, "LoopCnt");
-            if (!string.IsNullOrEmpty(strLoopCnt))
-            {
-                LoopCnt = int.Parse(strLoopCnt);
-            }
-            string strLoopInterval = XmlHelper.GetAttribute(xmlNode, "LoopInterval");
-            if (!string.IsNullOrEmpty(strLoopInterval))
-            {
-                LoopInterval = float.Parse(strLoopInterval);
-            }
+            LoopCnt = XmlHelper.GetInt(xmlNode, "LoopCnt", 1);
+            LoopInterval = XmlHelper.GetFloat(xmlNode, "LoopInterval", 0);
             
             NodeCfgList cfglist = new();
             SubCfgList = cfglist;
@@ -56,7 +48,7 @@ namespace CoreGame.Custom
     {
         private List<BehaviorNodeBase> mBehaviorSeq = new();
         private int mCfgLoopCnt = 1;
-        private float mCfgLoopInterval = 0;
+        private float mCfgLoopInterval = 0f;
         
         private int mCurBhvIndex = 0;
         private int mRemainLoopCnt = 0;
@@ -108,10 +100,13 @@ namespace CoreGame.Custom
 
         public override void Destroy()
         {
+            mCfgLoopCnt = 1;
+            mCfgLoopInterval = 0f;
+            
             mCurBhvIndex = 0;
             mRemainLoopCnt = 1;
-            mCfgLoopInterval = 0;
             mRemainTimeToNextLoop = -1f;
+            
             for (int i = 0; i < mBehaviorSeq.Count; ++i)
             {
                 mContext.NodeFactory.DestroyCustomNode(mBehaviorSeq[i]);
@@ -153,7 +148,7 @@ namespace CoreGame.Custom
                 var curIndex = mCurBhvIndex;
                 //---------------------- 处理 Loop Interval Beg ----------------------
                 var RemainTimeToNextLoop = mRemainTimeToNextLoop;
-                if (RemainTimeToNextLoop > 0)
+                if (RemainTimeToNextLoop >= 0)
                 {
                     if (dt_remain >= RemainTimeToNextLoop)
                     {

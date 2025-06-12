@@ -124,14 +124,14 @@ namespace CoreGame.Custom
                         int templeteID = templeteCfg.LogicID;
                         if (usedTempLogicSet.Contains(templeteID))
                         {
-                            LogWrapper.LogError("ERROR: 循环引用CustomLogic模板!  RootLogicID=" + logicCfg.ID + ", templeteID=" + templeteID);
+                            this.LogError($"ERROR: 循环引用CustomLogic模板! RootLogicID={logicCfg.ID}, templeteID={templeteID}");
                             continue;
                         }
                         usedTempLogicSet.Add(templeteID);
                         var cfgContainer = context.TempleteConfigContainer;
-                        if (cfgContainer != null)
+                        if (cfgContainer == null)
                         {
-                            LogWrapper.LogError("ERROR: 使用CustomLogic模板 但没有设定模板库!  RootLogicID=" + logicCfg.ID + ", templeteID=" + templeteID);
+                            this.LogError($"ERROR: CustomLogic使用模板, 但找不到设定模板库！cfgContainer != null, RootLogicID={logicCfg.ID}, templeteID={templeteID}");
                             continue;
                         }
                         var templeteLogicCfg = cfgContainer.GetCustomLogicCfg(templeteID);
@@ -142,7 +142,7 @@ namespace CoreGame.Custom
                         }
                         else
                         {
-                            LogWrapper.LogError("ERROR: CustomLogic模板找不到 RootLogicID=" + GenInfo.LogicConfigID + ", templeteID=" + templeteID);
+                            this.LogError($"ERROR: CustomLogic模板找不到! RootLogicID={logicCfg.ID}, templeteID={templeteID}");
                         }
                         continue;
                     }
@@ -153,7 +153,7 @@ namespace CoreGame.Custom
                 }
                 catch (System.Exception e)
                 {
-                    LogWrapper.LogError("CreateCustomLogic Failed,  ID = " + logicCfg.ID + " ErrorNodeIndex" + i);
+                    this.LogError($"CreateCustomLogic Exception Failed, ID={logicCfg.ID}, ErrorNodeIndex={i}");
                     LogWrapper.LogError(e);
                 }
             }

@@ -27,18 +27,7 @@ namespace CoreGame.Custom
             CLHelper.AssertBreak();
             return false;
         }
-
-        public static void LogError(this XmlNode cfgNode, string logMsg)
-        {
-            int id = cfgNode.GetLogicConfigID();
-            LogWrapper.LogError(string.Format("LogicParseError({0}) {1}", id, logMsg));
-        }
-        public static void LogError(this CustomNode node, string logMsg)
-        {
-            int id = node.GenInfo.LogicConfigID;
-            LogWrapper.LogError($"LogicError<{id}> : {logMsg}");
-        }
-
+        
         public static bool Assert(this XmlNode cfgNode, bool condition, string logMsg = null)
         {
             if (condition)
@@ -46,6 +35,43 @@ namespace CoreGame.Custom
             cfgNode.LogError(logMsg);
             return false;
         }
+
+        public static void LogError(this XmlNode cfgNode, string logMsg)
+        {
+            int id = cfgNode.GetLogicConfigID();
+            LogWrapper.LogError($"LogicParseError({id}) {logMsg}");
+        }
+        
+        public static void LogError(this CustomNode node, string logMsg)
+        {
+            int id = node.GenInfo.LogicConfigID;
+            LogWrapper.LogError($"LogicError({id}) {logMsg}");
+        }
+        
+        public static void AssertNodeCfgCategory(ICustomNodeCfg nodeCfg, NodeCategory targetCategory, bool checkNull = true)
+        {
+            if (nodeCfg != null)
+            {
+                var category = NodeConfigTypeRegistry.GetNodeCfgCategory(nodeCfg.GetType());
+                CLHelper.Assert(category == targetCategory);
+            }
+            else if (checkNull)
+            {
+                LogWrapper.LogError("LogicError nodeCfg == null");
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Node Helper
+        public static bool IsNodeCanStop(this CustomNode node)
+        {
+            if (node != null && node is INeedStopCheck check)
+            {
+               return check.CanStop();
+            }
+            return true;
+        }
+
     }
 
     //////////////////////////////////////////////////////////////////////////
