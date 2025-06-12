@@ -4,6 +4,11 @@ using System.Xml;
 
 namespace CoreGame.Custom
 {
+    public static partial class NodeConfigTypeRegistry
+    {
+        private static bool _StateTransitionNodeCfg = Register(typeof(StateTransitionNodeCfg), NodeCategory.StateTransition);
+    }
+    
     // 点静态配置: 状态转换节点
     public class StateTransitionNodeCfg : ICustomNodeXmlCfg
     {
@@ -17,6 +22,10 @@ namespace CoreGame.Custom
             return typeof(StateTransitionNode);
         }
 
+        public StateTransitionNodeCfg()
+        {
+        }
+        
         public StateTransitionNodeCfg(ICustomNodeCfg cndCfg, string trueID = null, string falseID = null)
         {
             ConditionCfg = cndCfg;

@@ -55,7 +55,7 @@ namespace CoreGame.Custom
         
         public void TestCustomLogic_RealTime()
         {
-            TestXmlCfg(10001);
+            TestXmlCfg(10005);
             //TestCodeCfg_Seq();
 
             int i = 0;

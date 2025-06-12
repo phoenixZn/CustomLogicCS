@@ -8,7 +8,9 @@ namespace CoreGame.Custom
         Unknown,        //未分类
         Bhv,            //行为
         Cnd,            //条件
+        FSM,            //状态机
         State,          //状态
+        StateTransition,     //状态转移
         Mixture,        //混合容器
     }
 

@@ -3,6 +3,12 @@ using System.Xml;
 
 namespace CoreGame.Custom
 {
+    public static partial class NodeConfigTypeRegistry
+    {
+        static bool CustomBhvStateCfg = Register(typeof(CustomBhvStateCfg), NodeCategory.State);
+    }
+
+    
     //静态配置
     public class CustomBhvStateCfg : StateNodeCfg
     {
@@ -143,7 +149,7 @@ namespace CoreGame.Custom
 
         public override string CheckTransitions()
         {
-            if (CS_IsStateBhvEnd)
+            if (!CS_IsStateBhvEnd)
             {
                 return null;
             }

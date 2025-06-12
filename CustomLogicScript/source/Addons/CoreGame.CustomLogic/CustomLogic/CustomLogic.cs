@@ -115,7 +115,7 @@ namespace CoreGame.Custom
             for (int i = 0; i < logicCfg.NodeCfgList.Count; i++)
             {
                 var nodeCfg = logicCfg.NodeCfgList[i];
-                try
+                //try
                 {
                     //////////////////////////// 处理模板引用 Begin ////////////////////////////
                     var templeteCfg = nodeCfg as LogicTempleteCfg;
@@ -151,11 +151,11 @@ namespace CoreGame.Custom
                     CustomNode theNode = mContext.NodeFactory.CreateCustomNode(nodeCfg, context);
                     this.AddCustomNode(theNode);
                 }
-                catch (System.Exception e)
-                {
-                    this.LogError($"CreateCustomLogic Exception Failed, ID={logicCfg.ID}, ErrorNodeIndex={i}");
-                    LogWrapper.LogError(e);
-                }
+                // catch (System.Exception e)
+                // {
+                //     this.LogError($"CreateCustomLogic Exception Failed, ID={logicCfg.ID}, ErrorNodeIndex={i}");
+                //     LogWrapper.LogError(e);
+                // }
             }
         }
 

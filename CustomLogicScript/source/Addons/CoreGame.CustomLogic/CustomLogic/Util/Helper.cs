@@ -48,6 +48,12 @@ namespace CoreGame.Custom
             LogWrapper.LogError($"LogicError({id}) {logMsg}");
         }
         
+        public static void LogInfo(this CustomNode node, string logMsg)
+        {
+            int id = node.GenInfo.LogicConfigID;
+            LogWrapper.LogInfo($"Logic({id}): {logMsg}");
+        }
+        
         public static void AssertNodeCfgCategory(ICustomNodeCfg nodeCfg, NodeCategory targetCategory, bool checkNull = true)
         {
             if (nodeCfg != null)
@@ -218,6 +224,27 @@ namespace CoreGame.Custom
                 return iValue;
             }
             return defaultValue;
+        }
+        
+        public static NodeCfgList GetNodeList(XmlNode xmlNode, string subNodeName)
+        {
+            XmlNodeList subNodeList = xmlNode.SelectNodes(subNodeName);
+            if (subNodeList == null)
+                return null;
+            if (subNodeList.Count == 0)
+                return null;
+            var cfgList = new NodeCfgList();
+            foreach (XmlNode subNode in subNodeList)
+            {
+                ICustomNodeCfg nodeCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
+                CLHelper.Assert(nodeCfg != null);
+                cfgList.Add(nodeCfg);
+            }
+            if (cfgList.Count == 0)
+            {
+                CLHelper.AssertBreak();
+            }
+            return cfgList;
         }
         
         public static string GetString(XmlNode node, string attrName, string defaultValue = null)

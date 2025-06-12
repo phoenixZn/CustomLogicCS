@@ -20,23 +20,35 @@
 
     <ConfigItem type="CustomLogic">
         <ID>10000</ID>
-        <Tips>测试0</Tips>
+        <Tips>测试按条件触发的行为节点</Tips>
         <Node type="LogBhv" LogStr="测试 ConditionBranchBhv 节点"/>
         <Node type="ConditionBranchBhv">
             <Condition type="TimeOutCnd" time="2.6"/>
             <TrueBhv type="LogBhv" LogStr="ConditionBranchBhv TrueBhv 调用"/>
         </Node>
     </ConfigItem>
-    
+
     <ConfigItem type="CustomLogic">
         <ID>10001</ID>
-        <Tips>测试1</Tips>
-        <Node type="ConditionBranchBhv">
-            <Condition type="TimeOutCnd" time="4"/>
-            <TrueBhv type="LogBhv" LogStr="10001 ConditionBranchBhv TrueBhv"/>
+        <Tips>测试SequenceBhv</Tips>
+        <Node type="LogBhv" LogStr="测试SequenceBhv节点"/>
+        <Node type="SequenceBhv">
+            <Node type="FTDelayBhv" TimeLen="3"/>
+            <Node type="LogBhv" LogStr="10002 Seq Action 1"/>
+            <Node type="FTDelayBhv" TimeLen="3"/>
+            <Node type="LogBhv" LogStr="10002 Seq Action 2"/>
         </Node>
+    </ConfigItem>
+        
+    <ConfigItem type="CustomLogic">
+        <ID>10002</ID>
+        <Tips>测试并行节点</Tips>
+        <Node type="LogBhv" LogStr="测试并行节点 ParallelBhv"/>
         <Node type="ParallelBhv">
-            <Node type="LogBhv" LogStr="10001 ParallelBhv Begin"/>
+            <Node type="LogBhv" LogStr="ParallelBhv Begin"/>
+            <Node type="SequenceBhv" LoopCnt="4" LoopInterval="2">
+                <Node type="LogBhv" LogStr="并行的 Seq1 使用LoopInterval"/>
+            </Node>
             <Node type="SequenceBhv" LoopCnt="3">
                 <Node type="LogBhv" LogStr="并行的 Seq2"/>
                 <Node type="FTDelayBhv" TimeLen="3"/>
@@ -45,39 +57,9 @@
 	</ConfigItem>
 
     <ConfigItem type="CustomLogic">
-        <ID>70001</ID>
-        <Tips>测试1</Tips>
-        <Node type="ConditionBranchBhv">
-            <Condition type="TimeOutCnd" time="4"/>
-            <TrueBhv type="LogBhv" LogStr="10001 ConditionBranchBhv TrueBhv"/>
-        </Node>
-        <Node type="ParallelBhv">
-            <Node type="LogBhv" LogStr="10001 ParallelBhv Begin"/>
-            <Node type="SequenceBhv" LoopCnt="4" LoopInterval="2">
-                <Node type="LogBhv" LogStr="并行的 Seq1"/>
-            </Node>
-            <Node type="SequenceBhv" LoopCnt="3">
-                <Node type="LogBhv" LogStr="并行的 Seq2"/>
-                <Node type="FTDelayBhv" TimeLen="3"/>
-            </Node>
-        </Node>
-    </ConfigItem>
-
-    <ConfigItem type="CustomLogic">
-        <ID>10002</ID>
-        <Tips>测试2</Tips>
-        <Node type="LogBhv" LogStr="10002 Begin"/>
-        <Node type="SequenceBhv">
-            <Node type="FTDelayBhv" TimeLen="3"/>
-            <Node type="LogBhv" LogStr="10002 Seq Action 1"/>
-            <Node type="FTDelayBhv" TimeLen="3"/>
-            <Node type="LogBhv" LogStr="10002 Seq Action 2"/>
-        </Node>
-    </ConfigItem>
-
-    <ConfigItem type="CustomLogic">
         <ID>10003</ID>
-        <Tips>测试3</Tips>
+        <Tips>测试LogicTemplete</Tips>
+        <Node type="LogBhv" LogStr="测试逻辑模版复用"/>
         <Node type="LogBhv" LogStr="10003 Action 1"/>
         <Node type="LogicTemplete" LogicID="10002"/>
         <Node type="LogBhv" LogStr="10003 Action 2"/>
@@ -85,11 +67,49 @@
 
     <ConfigItem type="CustomLogic">
         <ID>10004</ID>
-        <Tips>测试4</Tips>
-        <Node type="LogBhv" LogStr="10004 Begin"/>
-        <Node type="SequenceBhv">
-            <Node type="LogBhv" LogStr="10004 Log"/>
-            <Node type="FTDelayBhv" TimeLen="1"/>
+        <Tips>测试状态机</Tips>
+        <Node type="LogBhv" LogStr="测试状态机 Begin"/>
+        <Node type="FSMNode" DefaultState="State_A" RecordCurStateIDTo="CV_CurStateID">
+            <!-- State_A -->
+            <State type="CustomBhvState" StateID="State_A" NextStateID="State_B">
+                <Bhv type="LogBhv" LogStr="State_A Enter"/>
+            </State>
+
+            <!-- State_B -->
+            <State type="CustomBhvState" StateID="State_B" NextStateID="State_C">
+                <Bhv type="SequenceBhv">
+                    <Node type="LogBhv" LogStr="State_B Enter"/>
+                    <Node type="LogBhv" LogStr="State_B Action..."/>
+                    <Node type="FTDelayBhv" TimeLen="2.6"/>
+                    <Node type="LogBhv" LogStr="State_B Action Finish"/>
+                </Bhv>
+                <ExitBhv type="LogBhv" LogStr="State_B Leave"/>
+            </State>
+
+            <!-- State_C-->
+            <State type="CustomBhvState" StateID="State_C" >
+                <Bhv type="LogBhv" LogStr="State_C Enter"/>
+            </State>
+        </Node>
+    </ConfigItem>
+
+    <ConfigItem type="CustomLogic">
+        <ID>10005</ID>
+        <Tips>测试状态机</Tips>
+        <Node type="LogBhv" LogStr="测试状态机 Begin"/>
+        <Node type="FSMNode" DefaultState="HST_Idle" RecordCurStateIDTo="CV_CurStateID">
+            <!-- TestHeroStateIdle -->
+            <State type="TestHeroState" StateID="HST_Idle">
+                <Transition type="StateTransitionNode" TrueStateID="HST_Run">
+                    <Condition type="TimeOutCnd" time="3.1"/>
+                </Transition>
+            </State>
+            <!-- TestHeroStateRun -->
+            <State type="TestHeroState" StateID="HST_Run" NextStateID="HST_Skill">
+            </State>
+            <!-- TestHeroStateSkill-->
+            <State type="TestHeroState" StateID="HST_Skill" >
+            </State>
         </Node>
     </ConfigItem>
 

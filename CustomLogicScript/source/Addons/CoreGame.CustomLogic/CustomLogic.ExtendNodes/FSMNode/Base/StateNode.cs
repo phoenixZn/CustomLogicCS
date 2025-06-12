@@ -25,16 +25,8 @@ namespace CoreGame.Custom
                 return false;
             }
             NextStateID = XmlHelper.GetAttribute(xmlNode, "NextStateID");
-
-            var xmlTransitions = xmlNode.SelectSingleNode("Transitions");
-            if (xmlTransitions != null)
-            {
-                Transitions = new NodeCfgList();
-                if (!Transitions.ParseFromXml(xmlTransitions))
-                {
-                    return false;
-                }
-            }
+            
+            Transitions = XmlHelper.GetNodeList(xmlNode, "Transition");
             return true;
         }
     }

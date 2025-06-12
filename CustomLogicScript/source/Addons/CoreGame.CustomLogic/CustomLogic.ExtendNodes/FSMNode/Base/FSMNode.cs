@@ -5,7 +5,7 @@ namespace CoreGame.Custom
 {
     public static partial class NodeConfigTypeRegistry
     {
-        private static bool _FSMNodeCfg = Register(typeof(FSMNodeCfg), NodeCategory.State);
+        private static bool _FSMNodeCfg = Register(typeof(FSMNodeCfg), NodeCategory.FSM);
     }
 
     //静态配置
@@ -361,6 +361,10 @@ namespace CoreGame.Custom
         // Init
         private StateNode FindState(string stateID)
         {
+            if (stateID == null)
+            {
+                return null;
+            }
             if (mStates.TryGetValue(stateID, out var state))
             {
                 return state;

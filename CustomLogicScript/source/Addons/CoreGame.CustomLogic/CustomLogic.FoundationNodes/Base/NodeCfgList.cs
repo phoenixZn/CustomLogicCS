@@ -14,6 +14,7 @@ namespace CoreGame.Custom
             foreach (XmlNode subNode in subNodeList)
             {
                 ICustomNodeCfg nodeCfg = ICustomNodeXmlCfg.CreateNodeCfg(subNode);
+                CLHelper.Assert(nodeCfg != null);
                 this.Add(nodeCfg);
             }
             if (this.Count == 0)
