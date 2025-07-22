@@ -8,17 +8,28 @@ public class MultChangeFloat_MAX : MultChangeValue<float>
     }
     protected override void CalcuCurValue()
     {
+        // if (mValueChangeList.Count > 0)
+        // {
+        //     var lastV = mValueChangeList[mValueChangeList.Count - 1].Value;
+        //     if (lastV > mCurValue)
+        //     {
+        //         mCurValue = lastV;
+        //     }
+        // }
+        // else
+        // {
+        //     mCurValue = mBaseValue;
+        // }
+        mCurValue = mBaseValue;
         if (mValueChangeList.Count > 0)
         {
-            var lastV = mValueChangeList[mValueChangeList.Count - 1].Value;
-            if (lastV > mCurValue)
+            foreach (var v in mValueChangeList)
             {
-                mCurValue = lastV;
+                if (mCurValue < v.Value)
+                {
+                    mCurValue = v.Value;
+                }
             }
-        }
-        else
-        {
-            mCurValue = mBaseValue;
         }
     }
 }

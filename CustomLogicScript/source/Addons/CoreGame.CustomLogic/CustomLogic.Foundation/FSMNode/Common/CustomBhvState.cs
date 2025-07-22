@@ -110,6 +110,10 @@ namespace CoreGame.Custom
                     OnNodeLogicEnd();
                 }
             }
+            else
+            {
+                CS_IsStateBhvEnd = true;
+            }
             return dt;
         }
 
