@@ -1,62 +1,30 @@
 ﻿using System.IO;
 
-namespace CoreGame.Custom
+namespace HotUpdate.CoreGame
 {
-    public struct EntityCustomLogicGenInfo : ICustomLogicGenInfo
+    public class EntityCustomLogicGenInfo : ICustomLogicGenInfo
     {
-        int m_configID;
-        public int ConfigID
-        {
-            get { return m_configID; }
-            set { m_configID = value; }
-        }
     }
-
-    public class TestLogicFactory : CustomLogicFactory
-    {
-        //单例
-        static TestLogicFactory sInstance = null;
-        public static TestLogicFactory Instance()
-        {
-            if (sInstance == null)
-            {
-                sInstance = new TestLogicFactory();
-            }
-            return sInstance;
-        }
-
-        private TestLogicFactory() { }
-
-
-        public override void DoCache()
-        {
-            //cache一些常用的
-            //mObjectPool.Cache<CustomLogic>(40);
-            //mObjectPool.Cache<CndBhvNode>(60);
-            //mObjectPool.Cache<TimeOutCnd>(120);
-            //mObjectPool.Cache<FTRepeatBhv>(5);
-            //mObjectPool.Cache<LogicANDCnd>(5);
-            //mObjectPool.Cache<DelayBhv>(20);
-        }
-    }
-
-
+    
 
     public class TestCustomLogic
     {
-        public int testLogicID = 10004;
+        public CustomLogicService svc = new CustomLogicService();
         CustomLogic logic;
 
         public TestCustomLogic()
         {
             string resPath = "../../../source/Project.Test/CustomLogicConfig.xml";
             bool isExist = File.Exists(resPath);
+            svc.AddConfigContainer(new XmlLogicConfigContainer(LogicContainerKey.LogicConfig_UnitTest_Xml, resPath));
+            svc.AddConfigContainer(new LogicConfigs_UnitTest(LogicContainerKey.LogicConfig_UnitTest_CSharp));
 
-            TestLogicFactory.Instance().InitConfigMng(resPath);
-
-            var genInfo = new EntityCustomLogicGenInfo();
-            genInfo.ConfigID = testLogicID;
-            logic = TestLogicFactory.Instance().CreateCustomLogic(genInfo);
+            var genInfo = new EntityCustomLogicGenInfo()
+            {
+                LogicConfigID = 10000,
+                ConfigContainerName = LogicContainerKey.LogicConfig_UnitTest_Xml,
+            };
+            logic = svc.CreateLogic(genInfo);
         }
 
         public void Update(float dt)
@@ -68,7 +36,7 @@ namespace CoreGame.Custom
 
             if (logic.CanStop())
             {
-                CustomLogicFactory.DestroyCustomLogic(logic);
+                svc.DestroyLogic(logic);
                 logic = null;
             }
         }
