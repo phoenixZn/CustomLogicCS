@@ -11,37 +11,12 @@ namespace HotUpdate.CoreGame
     // 收纳到这里的都是任意项目通用的，绝对可以跨项目使用
     // 项目特化的不要放这里 ！！！！！
     //////////////////////////////////////////////////////////////////////////
-    public partial class LogicConfigBase : Dictionary<int, CustomLogicCfg>, ILogicConfigContainer
+    public partial class LogicConfigContainerBase : CSharpLogicConfigContainer
     {
-        protected System.Type DefaultLogicType;
-        
-        public LogicConfigBase(string name, int capacity = 64)
-            : base(capacity)
+        public LogicConfigContainerBase(string name, int capacity = 64) : base(name, capacity)
         {
-            ContainerName = name;
-            DefaultLogicType = typeof(CustomLogic);
         }
         
-        protected CustomLogicCfg AddConfig(int id, Nodes nodes, string desc = null)
-        {
-            var logicCfg = new CustomLogicCfg(id, nodes, DefaultLogicType, desc);
-            Add(id, logicCfg);
-            return logicCfg;
-        }
-
-
-        //////////////////////////////////////////////////////////////////////////
-        /// ILogicConfigContainer
-        public CustomLogicCfg GetCustomLogicCfg(int id)
-        {
-            if (TryGetValue(id, out var cfg))
-                return cfg;
-            return null;
-        }
-
-        public string ContainerName { get; private set; }
-
-
         //////////////////////////////////////////////////////////////////////////
         /// 便捷配置包装函数:
         
@@ -319,5 +294,6 @@ namespace HotUpdate.CoreGame
                 CLHelper.LogInfo(node, $"{prefix} LogVar varID={varID}, v={v}");
             });
         }
+
     }
 }

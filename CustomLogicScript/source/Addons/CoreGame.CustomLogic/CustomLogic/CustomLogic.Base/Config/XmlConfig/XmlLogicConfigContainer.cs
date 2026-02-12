@@ -10,7 +10,6 @@ namespace HotUpdate.CoreGame
     {
         //<自定义逻辑ID, 配置信息>
         private Dictionary<int, CustomLogicCfg> mCustomCfgMap;
-        public string ContainerName { get; protected set; }
 
         public XmlLogicConfigContainer(string name, string xmlPath)
         {
@@ -18,13 +17,9 @@ namespace HotUpdate.CoreGame
             mCustomCfgMap = new();
             ReadXml(xmlPath);
         }
-
-        public CustomLogicCfg AddConfig(int id, CustomLogicCfg cfg)
-        {
-            mCustomCfgMap.Add(id, cfg);
-            return cfg;
-        }
-
+        
+        //////////////////////////////////////////////////////////////////////////
+        /// ILogicConfigContainer
         public CustomLogicCfg GetCustomLogicCfg(int id)
         {
             if (mCustomCfgMap.ContainsKey(id))
@@ -34,7 +29,15 @@ namespace HotUpdate.CoreGame
 
             return null;
         }
+        
+        public string ContainerName { get; protected set; }
 
+        public ICollection<int> GetConfigIDs()
+        {
+            return mCustomCfgMap.Keys;
+        }
+
+        //////////////////////////////////////////////////////////////////////////
         //读取Xml配置
         public bool ReadXml(string xmlPath)
         {

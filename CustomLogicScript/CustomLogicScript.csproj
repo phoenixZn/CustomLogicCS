@@ -19,8 +19,4 @@
       </Reference>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="source\Addons\CoreGame.CustomLogic\CustomLogic\CustomLogic.Base\Config\CSharpConfig" />
-    </ItemGroup>
-
 </Project>

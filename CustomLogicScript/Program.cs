@@ -7,17 +7,9 @@ namespace CustomLogicScript
     {
         static void Main(string[] args)
         {
-            TestCustomLogic();
+            var unitTest = new HotUpdate.CoreGame.LogicUnitTest();
+            unitTest.RunTest();
         }
-        
-        static void TestCustomLogic()
-        {
-            var logic = new HotUpdate.CoreGame.TestCustomLogic();
-            while(true)
-            {
-                System.Threading.Thread.Sleep(30);
-                logic.Update(0.03f);
-            }
-        }
+
     }
 }
