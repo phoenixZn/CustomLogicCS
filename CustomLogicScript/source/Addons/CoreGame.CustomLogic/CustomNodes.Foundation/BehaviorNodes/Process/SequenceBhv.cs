@@ -137,6 +137,7 @@ namespace HotUpdate.CoreGame
                 if (!CLHelper.Assert(subbhv != null))
                     continue;
                 mBehaviorSeq.Add(subbhv);
+                subbhv.Deactivate();
             }
         }
 
@@ -158,7 +159,8 @@ namespace HotUpdate.CoreGame
         public override void Deactivate()
         {
             base.Deactivate();
-            DeactivateCurBhv();
+            //DeactivateCurBhv();
+            DeactivateAllBhv();
         }
 
         public override void Destroy()
@@ -251,6 +253,10 @@ namespace HotUpdate.CoreGame
                 }
 
                 var curBhv = mBehaviorSeq[mCurBhvIndex];
+                if (!curBhv.IsActive)
+                {
+                    curBhv.Activate();
+                }
                 //过剩的时间片传入后续的更新
                 dt_remain = curBhv.Update(dt_remain);
 
@@ -351,6 +357,18 @@ namespace HotUpdate.CoreGame
             if (mCurBhvIndex >= 0 && mCurBhvIndex < mBehaviorSeq.Count)
             {
                 mBehaviorSeq[mCurBhvIndex].Deactivate();
+            }
+        }
+        
+        protected void DeactivateAllBhv()
+        {
+            for (int i = 0; i < mBehaviorSeq.Count; ++i)
+            {
+                var bhv = mBehaviorSeq[i];
+                if (bhv.IsActive)
+                {
+                    bhv.Deactivate();
+                }
             }
         }
     }
